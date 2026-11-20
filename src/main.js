@@ -91,7 +91,6 @@ window.addEventListener('load', () => requestAnimationFrame(syncToAddress));
 // ---- list view ----
 const list = createListView({
   projects,
-  totalFaces: faces.length,
   onOpen: () => {
     lenis.stop();
     setPageInert(true);

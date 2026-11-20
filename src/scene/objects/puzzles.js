@@ -46,7 +46,7 @@ function stickerMeshes(shapes) {
 // Wraps a body and its stickers in three nested groups:
 // the outer one is placed by the scene, "hop" does the little hop and wiggle on hover,
 // and "tilted" holds the puzzle at its resting angle.
-// lift: how far it rises on hover, enough to pull its buried part clear of the moon.
+// lift: how far it rises off the ground on hover.
 function puzzle(body, shapes, orientation, lift) {
   const group = new THREE.Group();
   const hop = new THREE.Group();
@@ -101,9 +101,10 @@ export function createPyraminx(radius = 1.7) {
   });
 
   const body = new THREE.Mesh(new THREE.TetrahedronGeometry(radius), toon(palette.cubeBody));
-  // Stand it on one face with a point straight up, then lean it a little, as if it landed that way.
+  // Stand it flat on one face with a point straight up, turned a little so two faces show.
+  // The scene rests its base on the ground: the base is radius / 3 below the centre.
   const upright = new THREE.Quaternion().setFromUnitVectors(corners[0].clone().normalize(), UP);
-  return puzzle(body, shapes, lean(0.12, 0.5, 0.2).multiply(upright), 1.05);
+  return puzzle(body, shapes, lean(0, 0.5, 0).multiply(upright), 0.6);
 }
 
 // ---- Megaminx: twelve five-sided faces, each a centre, five corner diamonds and five edge pieces ----
@@ -165,5 +166,10 @@ export function createMegaminx(radius = 1.3) {
   });
 
   const body = new THREE.Mesh(new THREE.DodecahedronGeometry(radius), toon(palette.cubeBody));
-  return puzzle(body, shapes, lean(0.35, -0.4, 0.2), 1.1);
+  // Sit it flat on one of its faces, turned a little. A face is about 0.795 x radius from the centre.
+  const faceDown = new THREE.Quaternion().setFromUnitVectors(
+    new THREE.Vector3(0, -phi, -1).normalize(),
+    UP.clone().negate(),
+  );
+  return puzzle(body, shapes, lean(0, -0.4, 0).multiply(faceDown), 0.6);
 }

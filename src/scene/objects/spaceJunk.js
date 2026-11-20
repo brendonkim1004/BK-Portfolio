@@ -62,10 +62,13 @@ export function createAsteroids(layout, seed = 1) {
     group.add(mesh);
     return mesh;
   });
+  // Each rock spins on its own when clicked (see planets.js for how spinnables work).
+  group.spinnables = rocks.map((mesh) => ({ hit: mesh, angle: 0, speed: 0 }));
+
   group.update = (time) => {
     rocks.forEach((mesh, i) => {
       mesh.rotation.x = time * (0.12 + i * 0.05);
-      mesh.rotation.y = time * (0.18 - i * 0.03);
+      mesh.rotation.y = time * (0.18 - i * 0.03) + group.spinnables[i].angle;
     });
     group.position.y = group.userData.homeY + Math.sin(time * 0.35 + seed) * 0.15;
   };

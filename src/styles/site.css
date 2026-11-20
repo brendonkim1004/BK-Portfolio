@@ -39,6 +39,11 @@ html {
   scrollbar-gutter: stable;
 }
 
+/* The mouse is over a planet or asteroid that can be clicked to spin. */
+html.can-spin { cursor: pointer; }
+.project-view,
+.list-view { cursor: auto; }
+
 main > section {
   position: relative;
   padding: 0 var(--gutter);
@@ -614,11 +619,6 @@ main > section {
 .lv-row:focus-visible {
   outline: 3px solid var(--face-yellow);
   outline-offset: 4px;
-}
-
-.lv-more {
-  margin: 2rem 0 0;
-  font-weight: 700;
 }
 
 /* ---- 7. Outro ---- */

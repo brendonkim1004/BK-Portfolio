@@ -92,14 +92,17 @@ export function createWorld(stage, { hitEl, isPhone, onSideLabel, ...cubeOptions
   let cubeScale = 1;
   let cubeGrow = 1.3; // how much bigger the cube gets once it is solved and centred
 
-  // ---- the two placeholder puzzles, each stuck in its own crater either side of the cube ----
-  // rest: how far the centre sits above the ground (they are part buried, and rise clear on hover).
-  // top: where the label goes. craterSize: radius of the crater it sits in.
+  // ---- the two placeholder puzzles, each sitting in its own crater either side of the cube ----
+  // rest: height of the centre above the ground, chosen so the flat base just touches the crater floor
+  // (nothing is buried). top: where the label goes. craterSize: radius of the crater it sits in.
   const SIDE_Z = -1;
   const sides = [
-    { object: createPyraminx(), side: -1, rest: 0.4, top: 3.1, craterSize: 1.9, hover: 0 },
-    { object: createMegaminx(), side: 1, rest: 0.6, top: 2.9, craterSize: 1.55, hover: 0 },
+    { object: createPyraminx(), side: -1, rest: 0.62, top: 3.2, craterSize: 2.0, hover: 0 },
+    { object: createMegaminx(), side: 1, rest: 1.08, top: 2.95, craterSize: 1.6, hover: 0 },
   ];
+  const moonCentre = new THREE.Vector3(0, MOON_TOP - MOON_RADIUS, 0);
+  const groundNormal = new THREE.Vector3();
+  const straightUp = new THREE.Vector3(0, 1, 0);
   for (const s of sides) {
     scene.add(s.object);
     s.crater = moon.addCrater(s.craterSize);
@@ -120,6 +123,40 @@ export function createWorld(stage, { hitEl, isPhone, onSideLabel, ...cubeOptions
     if (e.pointerType !== 'mouse') tap = { x: e.clientX, y: e.clientY };
   });
   document.documentElement.addEventListener('pointerleave', () => (mouse = null));
+
+  // ---- click a planet or asteroid to spin it ----
+  const spinnables = drifting.flatMap((object) => object.spinnables ?? []);
+  const SPIN_KICK = 9; // radians per second added by one click
+  const SPIN_MAX = 26;
+  const centre = new THREE.Vector3();
+
+  function spinnableUnder(point) {
+    ndc.set((point.x / window.innerWidth) * 2 - 1, -((point.y / window.innerHeight) * 2 - 1));
+    ray.setFromCamera(ndc, camera);
+    let nearest = null;
+    let nearestDistance = Infinity;
+    for (const s of spinnables) {
+      const hit = ray.intersectObject(s.hit, true)[0];
+      if (hit && hit.distance < nearestDistance) {
+        nearest = s;
+        nearestDistance = hit.distance;
+      }
+    }
+    return nearest;
+  }
+
+  window.addEventListener('click', (e) => {
+    // Clicks meant for buttons, the cube, or an open project are not ours.
+    if (e.target.closest?.('button, a, #cube-hit, .project-view, .list-view')) return;
+    const s = spinnableUnder({ x: e.clientX, y: e.clientY });
+    if (!s) return;
+    // Clicking its right side spins it one way, its left side the other, like flicking a globe.
+    s.hit.getWorldPosition(centre).project(camera);
+    const centreX = (centre.x * 0.5 + 0.5) * window.innerWidth;
+    const push = e.clientX >= centreX ? SPIN_KICK : -SPIN_KICK;
+    s.speed = Math.min(SPIN_MAX, Math.max(-SPIN_MAX, s.speed + push));
+  });
+  let canSpin = false; // whether the mouse is over something spinnable (shows the hand cursor)
 
   function sideUnder(point) {
     ndc.set((point.x / window.innerWidth) * 2 - 1, -((point.y / window.innerHeight) * 2 - 1));
@@ -145,9 +182,12 @@ export function createWorld(stage, { hitEl, isPhone, onSideLabel, ...cubeOptions
     const halfWidth = Math.tan((camera.fov * Math.PI) / 360) * (CAMERA_Z - SIDE_Z) * aspect;
     const x = Math.min(6.8, Math.max(1.8, halfWidth * 0.66));
     const scale = 0.5 + 0.5 * wide;
-    const ground = MOON_TOP - MOON_RADIUS + Math.sqrt(MOON_RADIUS ** 2 - x ** 2 - SIDE_Z ** 2);
+    const height = Math.sqrt(MOON_RADIUS ** 2 - x ** 2 - SIDE_Z ** 2);
     for (const s of sides) {
-      s.object.position.set(s.side * x, ground + s.rest * scale, SIDE_Z);
+      // The moon curves away from the middle, so each puzzle stands square to the ground under it.
+      groundNormal.set(s.side * x, height, SIDE_Z).normalize();
+      s.object.position.copy(moonCentre).addScaledVector(groundNormal, MOON_RADIUS + s.rest * scale);
+      s.object.quaternion.setFromUnitVectors(straightUp, groundNormal);
       s.object.scale.setScalar(scale);
       s.crater.place(s.side * x, SIDE_Z, scale);
       // On narrow screens the puzzles sit inside the cube's big crater already, so they need none of their own.
@@ -170,6 +210,18 @@ export function createWorld(stage, { hitEl, isPhone, onSideLabel, ...cubeOptions
 
     camera.position.set(pointer.x * 0.45, camY + pointer.y * 0.25, CAMERA_Z);
     camera.lookAt(0, camY, 0);
+
+    // Spins from clicks carry on for a while and slow down smoothly.
+    const slow = Math.exp(-1.4 * dt);
+    for (const s of spinnables) {
+      s.angle += s.speed * dt;
+      s.speed *= slow;
+    }
+    const nowCanSpin = mouse !== null && spinnableUnder(mouse) !== null;
+    if (nowCanSpin !== canSpin) {
+      canSpin = nowCanSpin;
+      document.documentElement.classList.toggle('can-spin', canSpin);
+    }
 
     for (const object of drifting) object.update(time);
     cube.update(time, dt, journey, {

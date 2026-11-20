@@ -4,7 +4,7 @@ import gsap from 'gsap';
 import { palette } from '../styles/palette.js';
 
 // onPick(project) opens a project. onOpen / onClose let the page pause and resume scrolling.
-export function createListView({ projects, totalFaces, onPick, onOpen, onClose }) {
+export function createListView({ projects, onPick, onOpen, onClose }) {
   const view = document.createElement('div');
   view.className = 'list-view';
   view.hidden = true;
@@ -55,14 +55,6 @@ export function createListView({ projects, totalFaces, onPick, onOpen, onClose }
   }
 
   page.append(title, list);
-
-  const blank = totalFaces - projects.length;
-  if (blank > 0) {
-    const more = document.createElement('p');
-    more.className = 'lv-more';
-    more.textContent = `${blank} more ${blank === 1 ? 'face is' : 'faces are'} still blank. Coming soon.`; // draft wording
-    page.append(more);
-  }
 
   view.append(closeButton, page);
   document.body.append(view);

@@ -1,4 +1,6 @@
 // Planets. Each create function returns a Group with an update(time) method for idle drift.
+// group.spinnables lists the parts that spin when clicked: "hit" is what the click lands on,
+// and the scene keeps "angle" (extra turn, in radians) and "speed" up to date.
 import * as THREE from 'three';
 import { palette } from '../../styles/palette.js';
 import { toyMesh } from '../materials.js';
@@ -18,7 +20,12 @@ export function createRingedPlanet() {
   ring.scale.set(1, 1, 0.35); // squash the tube so the ring reads as a flat band
   tilt.add(ball, stripe, ring);
 
+  // A plain ball turning on its own axis would not show, so a click swings the whole tilted planet round.
+  const spin = { hit: group, angle: 0, speed: 0 };
+  group.spinnables = [spin];
+
   group.update = (time) => {
+    group.rotation.y = spin.angle;
     ball.rotation.y = time * 0.15;
     stripe.rotation.y = time * 0.15;
     group.position.y = group.userData.homeY + Math.sin(time * 0.5) * 0.18;
@@ -54,9 +61,12 @@ export function createSmallPlanet(color = palette.faces.green, spotColor = palet
   orbit.add(pebble);
   group.add(orbit);
 
+  const spin = { hit: ball, angle: 0, speed: 0 };
+  group.spinnables = [spin];
+
   group.update = (time) => {
-    ball.rotation.y = time * 0.25;
-    orbit.rotation.y = time * 0.7;
+    ball.rotation.y = time * 0.25 + spin.angle;
+    orbit.rotation.y = time * 0.7 + spin.angle * 0.4; // its little moon gets dragged along too
     group.position.y = group.userData.homeY + Math.sin(time * 0.6 + 1.3) * 0.15;
   };
   return group;
