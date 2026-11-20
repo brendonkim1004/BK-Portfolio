@@ -539,22 +539,33 @@ html.on-moon .corner { color: var(--ink); }
   opacity: 0.8;
 }
 
-/* A working demo fills the screen area. The frame sits straight so the demo's text stays sharp. */
+/* A working demo is the main thing on the page, so its window breaks out of the text column
+   and takes nearly the whole screen. The frame sits straight so the demo's text stays sharp. */
+.pv-demo:has(.has-demo) {
+  --window: min(100vw - 4rem, 112rem);
+  margin-inline: calc((100% - var(--window)) / 2);
+}
 .demo-frame:has(.has-demo) { transform: none; }
 .demo-screen.has-demo {
   display: block;
   aspect-ratio: auto;
-  height: min(82svh, 50rem);
+  height: min(88svh, 64rem);
   padding: 0;
   overflow: hidden;
   background: #fff;
 }
 .demo-screen.has-demo p { display: none; }
+/* JavaScript sets the size and shrink of the page inside (see fitFrame in projectView.js). */
+.demo-screen.has-demo { position: relative; }
 .demo-screen iframe {
+  position: absolute; /* pinned to the top left corner, so a wider-than-window layout shrinks from there */
+  top: 0;
+  left: 0;
   display: block;
   width: 100%;
   height: 100%;
   border: 0;
+  transform-origin: 0 0;
 }
 .pv-demo figcaption {
   display: flex;
@@ -951,6 +962,7 @@ html.on-moon .corner { color: var(--ink); }
   .pv-result { margin-top: 0; }
   .pv-page,
   .lv-page { padding-top: 5.5rem; }
+  .pv-demo:has(.has-demo) { --window: calc(100vw - 1.5rem); }
   .pit-a { top: 16%; width: 26vw; height: 19vw; }
   .pit-b { display: none; }
   .pit-c { bottom: 3%; width: 20vw; height: 14vw; }

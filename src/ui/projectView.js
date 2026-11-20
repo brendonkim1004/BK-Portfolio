@@ -72,6 +72,23 @@ export function createProjectView({ burst, onOpen, onClosed, onCovered, onReques
   const parts = [...view.querySelectorAll('.pv-head, .pv-problem, .pv-result, .pv-demo, .pv-detail, .pv-tech, .pv-links')];
   gsap.set(hud, { xPercent: -50, yPercent: -50 });
 
+  // The page inside the window is always laid out at least DESKTOP_WIDTH wide, then shrunk to
+  // fit, so a laptop shows its desktop version (full header, side-by-side layout) and not the
+  // phone one. Phones are left alone: there the phone version is the right one.
+  const DESKTOP_WIDTH = 1280;
+  const screenEl = view.querySelector('.demo-screen');
+  function fitFrame() {
+    const frame = screenEl.querySelector('iframe');
+    if (!frame) return;
+    const width = screenEl.clientWidth;
+    const height = screenEl.clientHeight;
+    const shrink = window.innerWidth > 720 && width > 0 ? Math.min(1, width / DESKTOP_WIDTH) : 1;
+    frame.style.width = `${width / shrink}px`;
+    frame.style.height = `${height / shrink}px`;
+    frame.style.transform = shrink < 1 ? `scale(${shrink})` : '';
+  }
+  new ResizeObserver(fitFrame).observe(screenEl);
+
   let current = null;
   let timeline = null;
   let returnFocus = null;
@@ -111,6 +128,7 @@ export function createProjectView({ burst, onOpen, onClosed, onCovered, onReques
         note.textContent = 'This is the real, live site.';
       }
       screen.append(frame);
+      fitFrame();
       open.href = address;
     } else {
       screen.querySelector('p').textContent = 'The clickable demo goes here.';
