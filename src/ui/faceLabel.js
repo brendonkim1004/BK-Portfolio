@@ -16,7 +16,7 @@ export function createFaceLabel(el, { isPhone = false } = {}) {
   summary.className = 'face-card-summary';
   const hint = document.createElement('p');
   hint.className = 'face-card-hint';
-  hint.textContent = isPhone ? 'tap to open' : 'click to open'; // draft wording
+  hint.textContent = isPhone ? 'Tap to open' : 'Click to open'; // draft wording
   text.append(title, summary, hint);
   card.append(thumb, text);
   el.append(card);

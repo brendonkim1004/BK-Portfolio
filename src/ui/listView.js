@@ -15,8 +15,8 @@ export function createListView({ projects, onPick, onOpen, onClose }) {
 
   const closeButton = document.createElement('button');
   closeButton.type = 'button';
-  closeButton.className = 'sticker lv-close';
-  closeButton.textContent = 'back to space';
+  closeButton.className = 'cube-link lv-close';
+  closeButton.textContent = 'Back to space';
 
   const page = document.createElement('div');
   page.className = 'lv-page';

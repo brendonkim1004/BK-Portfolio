@@ -14,8 +14,8 @@
     <div class="grain" aria-hidden="true"></div>
 
     <div class="corner">
-      <button id="skip-to-work" class="sticker" type="button">skip to the work</button>
-      <button id="view-list" class="sticker" type="button">view as list</button>
+      <button id="skip-to-work" class="cube-link" type="button">Skip to the work</button>
+      <button id="view-list" class="cube-link" type="button">View as list</button>
     </div>
 
     <main>
@@ -33,8 +33,8 @@
       </section>
 
       <section id="descent" aria-label="A bit about how I work">
-        <div class="note-slot"><p class="note sticker" data-tilt="-3">I start by watching how people actually get their work done.</p></div>
-        <div class="note-slot"><p class="note sticker" data-tilt="2.5">Then I build the thing that removes the annoying part.</p></div>
+        <div class="note-slot"><p class="note">I start by watching how people actually get their work done.</p></div>
+        <div class="note-slot"><p class="note">Then I build the thing that removes the annoying part.</p></div>
       </section>
 
       <section id="moon" aria-label="The moon">
@@ -43,21 +43,18 @@
 
       <section id="hold" aria-label="Projects">
         <div id="cube-hit" aria-hidden="true"></div>
-        <p class="hold-hint sticker">drag to look around</p>
+        <p class="hold-hint">Drag to look around</p>
         <!-- The preview card for the face being pointed at. Filled in by main.js. -->
         <div id="face-label" class="face-label" aria-hidden="true"></div>
         <!-- Shown above the two placeholder puzzles beside the cube. -->
-        <p id="side-label" class="sticker side-label" aria-hidden="true">Coming Soon</p>
+        <p id="side-label" class="side-label" aria-hidden="true">Coming Soon</p>
         <!-- Keyboard access: one button per cube face, filled in from the projects data. -->
         <ul id="face-buttons" class="visually-hidden" aria-label="Projects on the cube"></ul>
       </section>
 
-      <!-- The page ends inside the moon: this section is the moon's ground rising over the scene. -->
+      <!-- The page ends on the moon the cubes sit on: the camera tips down onto its surface,
+           and this section carries on as the same ground. -->
       <section id="outro">
-        <svg class="moon-edge" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true">
-          <path class="moon-edge-fill" d="M0 20 Q50 -18 100 20 Z" />
-          <path class="moon-edge-line" d="M0 20 Q50 -18 100 20" />
-        </svg>
         <span class="pit pit-a" aria-hidden="true"></span>
         <span class="pit pit-b" aria-hidden="true"></span>
         <span class="pit pit-c" aria-hidden="true"></span>

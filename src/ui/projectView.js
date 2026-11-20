@@ -23,7 +23,7 @@ export function createProjectView({ burst, onOpen, onClosed, onCovered, onReques
 
   const view = build(`
     <div class="project-view" role="dialog" aria-modal="true" aria-labelledby="pv-title" data-lenis-prevent hidden>
-      <button class="sticker pv-back" type="button">back to the cube</button>
+      <button class="cube-link pv-back" type="button">Back to the cube</button>
       <article class="pv-page">
         <header class="pv-head">
           <h2 id="pv-title" class="pv-title"></h2>
@@ -41,7 +41,6 @@ export function createProjectView({ burst, onOpen, onClosed, onCovered, onReques
         </div>
         <figure class="pv-demo">
           <div class="demo-frame">
-            <span class="sticker demo-tab">demo</span>
             <div class="demo-screen"><p></p></div>
           </div>
           <figcaption>Demo with sample data. Not real company information.</figcaption>

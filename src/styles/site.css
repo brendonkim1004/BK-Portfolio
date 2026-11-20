@@ -49,20 +49,62 @@ main > section {
   padding: 0 var(--gutter);
 }
 
-/* ---- sticker look, shared ---- */
-.sticker {
-  display: inline-block;
-  padding: 0.35rem 0.95rem 0.4rem;
+/* ---- labels and buttons: one shared motif ----
+   No pills or boxes. A control is plain type led by one small cube sticker (a rounded square),
+   which makes a quarter turn when pointed at, like a face of the cube turning.
+   Set --marker to change the sticker's colour. */
+.cube-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0.35rem 0.25rem;
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 1.0625rem;
   line-height: 1.2;
-  color: var(--ink);
-  background: var(--cream);
-  border: 3px solid var(--outline);
-  border-radius: 14px 18px 12px 16px;
-  box-shadow: 4px 4px 0 var(--outline);
+  text-align: left;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
 }
+
+.cube-link::before {
+  content: "";
+  flex: none;
+  width: 0.9rem;
+  height: 0.9rem;
+  background: var(--marker, var(--face-yellow));
+  border: 2.5px solid var(--outline);
+  border-radius: 4px;
+  transition: transform 0.3s cubic-bezier(0.3, 0.9, 0.3, 1.1);
+}
+
+.cube-link:hover::before,
+.cube-link:focus-visible::before { transform: rotate(90deg) scale(1.15); }
+
+.cube-link:focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* The two always-there links, top right. Cream over space, ink once the moon is behind them. */
+.corner {
+  position: fixed;
+  z-index: 4;
+  top: 0.8rem;
+  right: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  color: var(--cream);
+}
+
+html.on-moon .corner { color: var(--ink); }
+#view-list { --marker: var(--face-blue); }
 
 /* ---- 1. About ---- */
 #about {
@@ -127,20 +169,28 @@ main > section {
 
 .note-slot {
   position: absolute;
-  max-width: min(21rem, 78vw);
+  max-width: min(34rem, 84vw);
+}
+
+/* Floating notes: big plain statements, no boxes. */
+.note {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.625rem, 3.4vw, 3rem);
+  line-height: 1.05;
+  max-width: 16ch;
+}
+
+.note-slot:nth-child(2) .note {
+  color: var(--face-yellow);
+  text-align: right;
 }
 
 .note-slot:nth-child(1) { top: 16%; left: var(--gutter); }
 .note-slot:nth-child(2) { top: 58%; right: var(--gutter); }
 
-.note {
-  margin: 0;
-  padding: 0.8rem 1.15rem 0.9rem;
-  font-size: clamp(1.25rem, 2.1vw, 1.75rem);
-  line-height: 1.15;
-}
 
-.note-slot:nth-child(2) .note { background: var(--face-pink); }
 
 /* ---- 3. Moon ---- */
 #moon {
@@ -182,16 +232,22 @@ main > section {
 #cube-hit.is-live { pointer-events: auto; }
 #cube-hit.is-dragging { cursor: grabbing; }
 
+
+/* A quiet line on the moon under the cube. */
 .hold-hint {
   position: fixed;
   z-index: 2;
   left: 50%;
   bottom: 12vh;
-  transform: translateX(-50%) rotate(-2deg);
+  margin: 0;
+  transform: translateX(-50%);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: var(--ink);
+  white-space: nowrap;
+  pointer-events: none;
   opacity: 0;
   transition: opacity 0.4s ease;
-  pointer-events: none;
-  white-space: nowrap;
 }
 
 #cube-hit.is-live ~ .hold-hint { opacity: 1; }
@@ -266,14 +322,40 @@ main > section {
 }
 
 /* A small tab in the face's colour, so the card is tied to the side being pointed at. */
+
+/* The hint under the summary: plain words led by a small sticker in the face's colour. */
 .face-card-hint {
-  display: inline-block;
-  margin: 0.45rem 0 0;
-  padding: 0.1rem 0.55rem 0.15rem;
-  font: 700 0.75rem/1.3 var(--font-body);
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0.5rem 0 0;
+  font: 700 0.8125rem/1.3 var(--font-body);
+}
+
+.face-card-hint::before {
+  content: "";
+  width: 0.7rem;
+  height: 0.7rem;
   background: var(--card-theme);
   border: 2px solid var(--outline);
-  border-radius: 8px 10px 7px 9px;
+  border-radius: 3px;
+}
+
+/* "Coming Soon" over a side puzzle: plain cream words against the sky. JS moves it with transform only. */
+.side-label {
+  position: fixed;
+  z-index: 2;
+  left: 0;
+  top: 0;
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.1875rem;
+  color: var(--cream);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease;
 }
 
 /* "Coming Soon" faces: just the words on the face's colour. */
@@ -286,18 +368,6 @@ main > section {
 .face-card.is-empty .face-card-summary,
 .face-card.is-empty .face-card-hint { display: none; }
 
-/* "Coming Soon" over a side puzzle. JS moves it with transform only. */
-.side-label {
-  position: fixed;
-  z-index: 2;
-  left: 0;
-  top: 0;
-  margin: 0;
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.18s ease;
-}
 
 .side-label.is-on { opacity: 1; }
 
@@ -378,6 +448,16 @@ main > section {
 /* ---- 6. Project view: themed with the clicked face's colour ---- */
 [hidden] { display: none !important; }
 
+.pv-back,
+.lv-close {
+  position: fixed;
+  z-index: 1;
+  top: 0.8rem;
+  left: 1.1rem;
+}
+
+.pv-back { --marker: var(--cream); }
+
 .project-view {
   position: fixed;
   inset: 0;
@@ -388,12 +468,6 @@ main > section {
   color: var(--ink);
 }
 
-.pv-back {
-  position: fixed;
-  z-index: 1;
-  top: 1rem;
-  left: 1rem;
-}
 
 .pv-page {
   max-width: 70rem;
@@ -459,7 +533,7 @@ main > section {
   margin: 0;
 }
 
-/* The demo window, drawn in the site's own sticker style. */
+/* The demo window, drawn in the site's own outlined style. */
 .pv-demo { margin: 0 0 5rem; }
 
 .demo-frame {
@@ -472,13 +546,6 @@ main > section {
   transform: rotate(-0.6deg);
 }
 
-.demo-tab {
-  position: absolute;
-  top: -1.25rem;
-  left: 2rem;
-  background: var(--theme);
-  transform: rotate(-3deg);
-}
 
 .demo-screen {
   aspect-ratio: 16 / 10;
@@ -538,12 +605,6 @@ main > section {
   background: var(--ink);
 }
 
-.lv-close {
-  position: fixed;
-  z-index: 1;
-  top: 1rem;
-  left: 1rem;
-}
 
 .lv-page {
   max-width: 58rem;
@@ -621,37 +682,22 @@ main > section {
 }
 
 /* ---- 7. Outro ---- */
-/* The page ends inside the moon. This section is solid moon-grey ground with a curved top edge,
-   so scrolling on simply carries it up over the scene: nothing here is animated. */
+/* The page ends on the same moon the cubes sit on. The camera tips down until the moon's surface
+   fills the screen, and this section carries on as that ground. Its top fades in from nothing,
+   so there is no edge between the 3D moon and the page. */
 #outro {
   min-height: 100svh;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-top: 12vh;
-  padding-bottom: 12vh;
+  padding-top: 17vh;
+  padding-bottom: 7vh;
   color: var(--ink);
-  background: var(--moon);
+  background: linear-gradient(to bottom, transparent, var(--moon) 22vh);
 }
 
-/* The curved horizon that leads the section up the screen. */
-.moon-edge {
-  position: absolute;
-  left: 0;
-  bottom: calc(100% - 1px);
-  width: 100%;
-  height: clamp(3.5rem, 9vw, 9rem);
-  overflow: visible;
-}
 
-.moon-edge-fill { fill: var(--moon); }
 
-.moon-edge-line {
-  fill: none;
-  stroke: var(--outline);
-  stroke-width: 4;
-  vector-effect: non-scaling-stroke;
-}
 
 /* A few craters seen from above, kept to the right so they never sit under the text. */
 .pit {
@@ -673,7 +719,7 @@ main > section {
 .outro-title {
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: clamp(3.5rem, 13vw, 11rem);
+  font-size: clamp(3.5rem, min(13vw, 21vh), 11rem);
   line-height: 0.9;
   letter-spacing: -0.01em;
   margin: 0 0 clamp(1.75rem, 4vw, 3.25rem);
@@ -724,38 +770,11 @@ main > section {
   outline-offset: 4px;
 }
 
-/* ---- always-on corner sticker ---- */
-.corner {
-  position: fixed;
-  z-index: 4;
-  top: 1rem;
-  right: 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.7rem;
-}
 
-#view-list {
-  background: var(--face-blue);
-  transform: rotate(-2deg);
-}
 
-#view-list:hover { transform: rotate(1deg) translateY(-2px); }
 
-button.sticker {
-  font-size: 0.9375rem;
-  cursor: pointer;
-  transform: rotate(2deg);
-  transition: transform 0.2s ease;
-}
 
-button.sticker:hover { transform: rotate(-1deg) translateY(-2px); }
 
-button.sticker:focus-visible {
-  outline: 3px solid var(--face-yellow);
-  outline-offset: 3px;
-}
 
 .fps {
   position: fixed;

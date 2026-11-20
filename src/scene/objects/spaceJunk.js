@@ -26,10 +26,14 @@ export function createSatellite() {
     group.add(arm, panel);
   }
 
+  // Clicking it sets it spinning (see planets.js for how spinnables work).
+  const spin = { hit: group, angle: 0, speed: 0 };
+  group.spinnables = [spin];
+
   group.rotation.set(0.3, -0.5, 0.25);
   group.update = (time) => {
     group.rotation.z = 0.25 + Math.sin(time * 0.4) * 0.12;
-    group.rotation.y = -0.5 + Math.sin(time * 0.25) * 0.25;
+    group.rotation.y = -0.5 + Math.sin(time * 0.25) * 0.25 + spin.angle;
     group.position.y = group.userData.homeY + Math.sin(time * 0.45 + 0.7) * 0.2;
   };
   return group;

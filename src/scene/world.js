@@ -14,11 +14,10 @@ import { createCube } from './cube/index.js';
 const DESCENT_END = -40; // camera height when the descent stretch finishes
 const MOON_TOP = -48; // the moon's surface
 const ARRIVE = MOON_TOP + 4; // camera height once it has settled over the moon
-const OUTRO_SINK = 5; // how far the camera sinks toward the moon as the page goes down into it
+const OUTRO_TILT = (62 * Math.PI) / 180; // how far the camera tips down to look at the moon's surface
 const CAMERA_Z = 14;
 
 const easeOut = (t) => 1 - (1 - t) ** 3;
-const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
 
 // cubeOptions are passed straight to the cube: { burst, onFaceClick, onLabel }.
 // onSideLabel({ x, y } | null) asks the page to show "Coming Soon" above a side puzzle, or hide it.
@@ -208,13 +207,15 @@ export function createWorld(stage, { hitEl, isPhone, onSideLabel, ...cubeOptions
     pointer.x += (target.x - pointer.x) * follow;
     pointer.y += (target.y - pointer.y) * follow;
 
-    const camY =
-      DESCENT_END * journey.descent +
-      (ARRIVE - DESCENT_END) * easeOut(journey.moon) +
-      -OUTRO_SINK * easeInOut(journey.outro);
+    const camY = DESCENT_END * journey.descent + (ARRIVE - DESCENT_END) * easeOut(journey.moon);
+
+    // The ending: the camera stays where it is and tips down, so the horizon slides up and off the
+    // screen and the moon's surface fills the view. It tips fastest at the start, so the ground has
+    // taken over before the contact text arrives on top of it.
+    const tilt = OUTRO_TILT * Math.sin((journey.outro * Math.PI) / 2);
 
     camera.position.set(pointer.x * 0.45, camY + pointer.y * 0.25, CAMERA_Z);
-    camera.lookAt(0, camY, 0);
+    camera.lookAt(0, camY - Math.tan(tilt) * CAMERA_Z, 0);
 
     // Spins from clicks carry on for a while and slow down smoothly.
     const slow = Math.exp(-1.4 * dt);

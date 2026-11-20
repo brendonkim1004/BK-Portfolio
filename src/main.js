@@ -26,6 +26,7 @@ const isPhone = window.matchMedia('(pointer: coarse)').matches;
 const faces = FACES.map((face) => ({ ...face, project: projectForFace(face.color) }));
 
 let world = null; // stays null if WebGL is not available
+let wasOnMoon = false; // whether the page has tipped down onto the moon (see the ticker)
 let covered = false; // true while a project or the list hides the 3D scene
 const burst = { value: 0 }; // 0 = whole cube, 1 = fully burst; tweened by the project view
 
@@ -145,7 +146,7 @@ window.addEventListener('pointermove', (e) => {
 const sideLabel = document.querySelector('#side-label');
 function showSideLabel(point) {
   if (point) {
-    sideLabel.style.transform = `translate3d(${point.x}px, ${point.y}px, 0) translate(-50%, -100%) rotate(-3deg)`;
+    sideLabel.style.transform = `translate3d(${point.x}px, ${point.y}px, 0) translate(-50%, -100%)`;
   }
   sideLabel.classList.toggle('is-on', point !== null);
 }
@@ -175,6 +176,12 @@ try {
     tickFps?.();
     if (covered) return; // nothing to draw while a project or the list covers the scene
     world.update(time, Math.min(deltaMs / 1000, 0.1), journey, cursor);
+    // Once the moon is behind the corner links they switch from cream to ink.
+    const onMoon = journey.outro > 0.4;
+    if (onMoon !== wasOnMoon) {
+      wasOnMoon = onMoon;
+      document.documentElement.classList.toggle('on-moon', onMoon);
+    }
     stage.render();
   });
 } catch (error) {
