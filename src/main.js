@@ -20,7 +20,7 @@ import { createFpsMeter } from './dev/fps.js';
 applyPalette();
 
 const { journey, lenis, scrollToWork, jumpToWork, holdAtCube } = setupScroll();
-// ---- sound: off until the visitor turns it on ----
+// ---- sound: on unless the visitor has switched it off ----
 const sound = createSound();
 const soundToggle = document.querySelector('#sound-toggle');
 function showSoundState() {
@@ -31,9 +31,6 @@ showSoundState();
 soundToggle.addEventListener('click', () => {
   sound.setOn(!sound.isOn());
   showSoundState();
-  // Turning sound on at the top of the page replays the name intro, this time with its sound
-  // (browsers do not allow sound on the very first load, before any click).
-  if (sound.isOn() && window.scrollY < window.innerHeight * 0.5) setupTextMotion({ sound });
 });
 
 setupTextMotion({ sound });
@@ -87,9 +84,14 @@ function openProject(project, { origin, instant = false } = {}) {
   if (location.hash !== hash) history.pushState(null, '', hash);
 }
 
-function closeProject() {
+// Shared by the close button, Escape and the browser's back button.
+function hideProject() {
   if (view.isOpen() && world) sound.play('gather');
   view.close();
+}
+
+function closeProject() {
+  hideProject();
   if (location.hash.startsWith('#project/')) {
     history.replaceState(null, '', location.pathname + location.search);
   }
@@ -102,7 +104,7 @@ function syncToAddress() {
     jumpToWork();
     openProject(project, { instant: true });
   } else if (!project && view.isOpen()) {
-    view.close();
+    hideProject();
   }
 }
 window.addEventListener('popstate', syncToAddress);

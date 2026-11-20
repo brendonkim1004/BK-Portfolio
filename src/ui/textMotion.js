@@ -1,6 +1,8 @@
 // The opening moment: the name, then the major and the school, "decode" into place.
 // Each letter flickers through random symbols for a moment and then locks in as the real
-// letter, in a wave running left to right along each line.
+// letter, one after another like text being typed onto the screen: the name first, then the
+// major, then the school. Each letter that locks in makes one small click, so the sound runs
+// exactly in step with the letters.
 //
 // How it works: SplitText wraps every letter in its own box. Each box is pinned to the real
 // letter's width, so swapping in other symbols never makes the line jiggle. When the wave has
@@ -13,18 +15,16 @@ gsap.registerPlugin(ScrollTrigger, SplitText);
 
 // selector, when its wave starts (seconds), and the gap between one letter starting and the next.
 const LINES = [
-  { selector: '.about-name', start: 0.1, gap: 0.07 },
-  { selector: '.about-major', start: 0.55, gap: 0.016 },
-  { selector: '.about-school', start: 0.95, gap: 0.016 },
+// Each line starts after the one before it has finished, so there is only ever one stream of clicks.
+  { selector: '.about-name', start: 0.1, gap: 0.08 },
+  { selector: '.about-major', start: 1.0, gap: 0.024 },
+  { selector: '.about-school', start: 2.1, gap: 0.024 },
 ];
-const SCRAMBLE = 0.5; // how long one letter flickers before it locks in, seconds
+const SCRAMBLE = 0.22; // how long one letter flickers before it locks in, seconds
 const SWAP = 0.05; // how often a flickering letter changes symbol, seconds
 const SYMBOLS = '#%&/\\<>[]{}=+*?!01XZNK'; // what a letter flickers through
 
 let running = false;
-
-// When the name's last letter locks in (seconds): the rising sound is timed to end there.
-const nameDone = (letters) => letters.find((l) => l.last).begin + SCRAMBLE;
 
 // sound is optional: { play(name, options) }. Safe to call again to replay the intro.
 export async function setupTextMotion({ sound } = {}) {
@@ -60,14 +60,11 @@ export async function setupTextMotion({ sound } = {}) {
       char.style.opacity = '0';
       letters.push({ el: char, real: char.textContent, begin: start + i * gap, shown: -1, done: false });
     });
-    // The last letter of the name is the cue for the big chord.
-    if (el === targets[0].el) letters[letters.length - 1].last = true;
     gsap.set(el, { opacity: 1 }); // the line is visible again; its letters are what is hidden now
   }
 
   const total = Math.max(...letters.map((l) => l.begin)) + SCRAMBLE;
   const clock = { time: 0 };
-  sound?.play('riser', { length: nameDone(letters) });
 
   function update() {
     for (const letter of letters) {
@@ -78,7 +75,8 @@ export async function setupTextMotion({ sound } = {}) {
         letter.el.textContent = letter.real;
         letter.el.style.opacity = '1';
         letter.done = true;
-        sound?.play(letter.last ? 'arrive' : 'blip');
+        // One click per letter, but only while the name is actually on screen.
+        if (window.scrollY < window.innerHeight * 0.7) sound?.play('type');
         continue;
       }
       // Still flickering: pick a new symbol every so often, dimmer than the finished letter.
