@@ -144,7 +144,7 @@
 
 .sticker {
   padding: 0.3rem 0.9rem 0.35rem;
-  color: #141B3C; /* always ink: stickers sit on face colours */
+  color: var(--ink);
   border: 3px solid var(--outline);
   border-radius: 14px 18px 12px 16px;
   box-shadow: 4px 4px 0 var(--outline);

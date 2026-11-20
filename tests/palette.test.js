@@ -17,3 +17,11 @@ test('there are six face colours and ink labels are readable on each', () => {
     expect(contrastRatio(palette.ink, hex), name).toBeGreaterThanOrEqual(4.5);
   }
 });
+
+test('decision page styles read colours from the palette, not hard-coded hex', async () => {
+  const { readFileSync, readdirSync } = await import('node:fs');
+  for (const file of readdirSync('src/pages').filter((f) => f.endsWith('.css'))) {
+    const css = readFileSync(`src/pages/${file}`, 'utf8');
+    expect(css.match(/#[0-9a-fA-F]{6}\b/g) ?? [], file).toEqual([]);
+  }
+});

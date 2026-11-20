@@ -21,7 +21,7 @@
   display: grid;
   place-items: center;
   background: var(--face-yellow);
-  color: #141B3C;
+  color: var(--ink);
   border: 3px solid var(--outline);
   border-radius: 12px 16px 10px 14px;
   font-family: "Fredoka", var(--font-fallback);
@@ -129,7 +129,7 @@
   font-family: "Fredoka", var(--font-fallback);
   font-weight: 600;
   font-size: 11px;
-  fill: #141B3C;
+  fill: var(--ink);
 }
 
 @media (max-width: 30rem) {
