@@ -4,3 +4,7 @@ dist/
 .DS_Store
 *.local
 .superpowers/
+
+# The inventory demo is its own small Next project; only its built pages (public/demos/inventory) are kept.
+demos/inventory/.next/
+demos/inventory/out/

@@ -1,0 +1,146 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Concord Inventory — design tokens.
+
+   This is a tool for a concrete-pump parts warehouse, used in two very
+   different places: on the shop floor at arm's length, one-handed, scanning;
+   and in the office against tables thousands of rows long. The greys are
+   borrowed from the equipment itself — steel and cured concrete — and the
+   accent is Concord red, sampled from the company logo: #ED1C24 accounts for
+   38,997 of its ~45,600 opaque pixels.
+
+   White on #ED1C24 measures 4.38:1, which clears the 3:1 bar for interface
+   components but sits just under the 4.5:1 needed for normal-size text. So the
+   pure brand red is used wherever it carries no text — the logo, the active
+   nav rule, edges and borders — and anything with a label on it uses
+   `red-fill` (#E11B22, 4.79:1) or, for red text on a light background,
+   `red-text` (#C9181F, 5.78:1). The difference is imperceptible; the contrast
+   is not.
+
+   Red marks one primary action per form or panel, never decoration and never a
+   background wash. Three peer forms on /admin each get their own; a single
+   panel with two red buttons has a hierarchy problem.
+
+   Because red is now the brand, green does the work of "this scan succeeded"
+   and red is left to mean "this was refused" or "this destroys something".
+   Neither marks a quantity of zero — after the SAGE import most of the
+   catalogue sits at zero, and colouring all of it would make the colour
+   meaningless.
+--------------------------------------------------------------------------- */
+
+@theme {
+  /* Surfaces: a steel ground with white panels sitting on it. */
+  --color-steel-50: #f4f5f3;
+  --color-steel-100: #e7e8e5;
+  --color-steel-200: #d5d7d2;
+  --color-steel-300: #b9bcb5;
+  --color-steel-400: #8f938b;
+  --color-steel-500: #6b6f68;
+  --color-steel-600: #4e524c;
+  --color-steel-700: #3a3d38;
+  --color-steel-800: #2a2c28;
+  --color-steel-900: #1c1e1b;
+  --color-steel-950: #121412;
+
+  /* Concord red, straight off the logo. Actions and identity only — never
+     decoration, never a background wash. */
+  --color-brand: #ed1c24; /* the true brand red; no text sits on it */
+  --color-brand-fill: #e11b22; /* buttons: white label, 4.79:1 */
+  --color-brand-hover: #c9181f;
+  --color-brand-text: #c9181f; /* red text on a light ground, 5.78:1 */
+  --color-brand-wash: #fdf2f3;
+
+  /* Semantics. Green means the scan landed; red means it was refused. */
+  --color-stock-ok: #0f7b3e;
+  --color-stock-none: #c9181f;
+
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono-code), ui-monospace, "SFMono-Regular", monospace;
+}
+
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  font-family: var(--font-sans);
+  /* Part numbers are read digit by digit and quantities are compared down a
+     column, so figures line up by default everywhere. */
+  font-variant-numeric: tabular-nums;
+}
+
+/* Tailwind v4 no longer sets cursor:pointer on buttons by default. */
+@layer base {
+  button:not(:disabled),
+  summary,
+  [role="button"] {
+    cursor: pointer;
+  }
+
+  /* Keyboard focus has to survive being used with gloves on a shop tablet as
+     well as by someone tabbing through the admin forms. */
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Demo only: the clickable sample labels on the scan page
+   (components/DemoLabels.tsx). Everything here moves with transform and
+   opacity only, so it stays smooth, and the reduced-motion rule below turns
+   all of it into an instant change.
+--------------------------------------------------------------------------- */
+
+/* The red scan line: a full-size layer with a thin line on its left edge,
+   slid across the label and faded out at the end. */
+@keyframes demo-sweep {
+  from { transform: translateX(0); opacity: 1; }
+  80% { opacity: 1; }
+  to { transform: translateX(100%); opacity: 0; }
+}
+.demo-sweep { animation: demo-sweep 420ms cubic-bezier(0.4, 0, 0.2, 1) both; }
+
+/* The new quantity drops into place. */
+@keyframes demo-tick {
+  from { transform: translateY(-60%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.demo-tick { display: inline-block; animation: demo-tick 220ms ease-out both; }
+
+/* Green or red wash over the label that fades away. */
+@keyframes demo-flash {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.demo-flash { animation: demo-flash 800ms ease-out both; }
+
+/* A scan that worked: the label swells slightly. */
+@keyframes demo-pulse {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+.demo-pulse { animation: demo-pulse 320ms ease-out; }
+
+/* A scan that was refused: the label shakes its head. */
+@keyframes demo-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-5px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+}
+.demo-shake { animation: demo-shake 360ms ease-in-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

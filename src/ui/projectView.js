@@ -43,7 +43,10 @@ export function createProjectView({ burst, onOpen, onClosed, onCovered, onReques
           <div class="demo-frame">
             <div class="demo-screen"><p></p></div>
           </div>
-          <figcaption>Demo with sample data. Not real company information.</figcaption>
+          <figcaption>
+            <span class="demo-note">Demo with sample data. Not real company information.</span>
+            <a class="cube-link demo-open" target="_blank" rel="noopener" hidden>Open full screen</a>
+          </figcaption>
         </figure>
         <div class="pv-detail">
           <section>
@@ -56,6 +59,7 @@ export function createProjectView({ burst, onOpen, onClosed, onCovered, onReques
           </section>
         </div>
         <p class="pv-tech"></p>
+        <ul class="pv-links"></ul>
       </article>
     </div>`);
 
@@ -65,7 +69,7 @@ export function createProjectView({ burst, onOpen, onClosed, onCovered, onReques
   const scan = fx.querySelector('.scanlines');
   const hud = fx.querySelector('.hud');
   const back = view.querySelector('.pv-back');
-  const parts = [...view.querySelectorAll('.pv-head, .pv-problem, .pv-result, .pv-demo, .pv-detail, .pv-tech')];
+  const parts = [...view.querySelectorAll('.pv-head, .pv-problem, .pv-result, .pv-demo, .pv-detail, .pv-tech, .pv-links')];
   gsap.set(hud, { xPercent: -50, yPercent: -50 });
 
   let current = null;
@@ -81,11 +85,39 @@ export function createProjectView({ burst, onOpen, onClosed, onCovered, onReques
     for (const field of ['problem', 'result', 'built', 'role']) {
       view.querySelector(`[data-field="${field}"]`).textContent = project[field];
     }
-    // Draft placeholder until each demo's screens are agreed.
-    view.querySelector('.demo-screen p').textContent =
-      project.type === 'public-site'
-        ? 'A live link or screenshots go here.'
-        : 'The clickable demo goes here.';
+    // The demo window: a working copy of the app in its own frame (project.prototype is its
+    // address), or a placeholder line for projects that do not have one yet.
+    const screen = view.querySelector('.demo-screen');
+    const open = view.querySelector('.demo-open');
+    screen.querySelector('iframe')?.remove();
+    screen.classList.toggle('has-demo', Boolean(project.prototype));
+    open.hidden = !project.prototype;
+    if (project.prototype) {
+      const frame = document.createElement('iframe');
+      frame.src = project.prototype;
+      frame.title = `${project.title}: working demo with sample data`;
+      screen.append(frame);
+      open.href = project.prototype;
+    } else {
+      screen.querySelector('p').textContent =
+        project.type === 'public-site' ? 'A live link or screenshots go here.' : 'The clickable demo goes here.';
+    }
+
+    // Links for this project (set in src/data/projects.js), plus the live site if it has one.
+    const links = [...(project.liveUrl ? [{ label: 'Visit the live site', url: project.liveUrl }] : []), ...(project.links ?? [])];
+    view.querySelector('.pv-links').replaceChildren(
+      ...links.map(({ label, url }) => {
+        const item = document.createElement('li');
+        const link = document.createElement('a');
+        link.className = 'cube-link';
+        link.href = url;
+        link.target = '_blank';
+        link.rel = 'noopener';
+        link.textContent = label;
+        item.append(link);
+        return item;
+      }),
+    );
     view.querySelector('.pv-tech').textContent = project.tech.length
       ? `Built with ${project.tech.join(', ')}.`
       : 'Tech list to come.';
@@ -163,7 +195,10 @@ export function createProjectView({ burst, onOpen, onClosed, onCovered, onReques
         },
       })
       .to(view, { opacity: 0, duration: 0.2, ease: 'none' }, 0)
-      .call(() => (view.hidden = true), null, 0.2)
+      .call(() => {
+        view.hidden = true;
+        view.querySelector('.demo-screen iframe')?.remove(); // stops the demo and clears its changes
+      }, null, 0.2)
       .to(flood, { scale: 0, duration: 0.65, ease: 'power3.inOut' }, 0.1)
       .to(burst, { value: 0, duration: 1, ease: 'power3.inOut' }, 0.15);
   }

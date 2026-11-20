@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Concord Concrete Pumps</title>
+</head>
+<body>
+  <header class="main-header">
+    <div class="header-content">
+      <div class="logo-area">
+        <img src="./logo.png" alt="Concord Concrete Pumps" class="header-logo" onerror="this.style.display='none'; this.nextElementSibling.classList.add('visible');">
+        <div class="logo-fallback" aria-hidden="true">
+          <span class="logo-concord-sm">CONCORD</span>
+          <span class="logo-tagline-sm">CONCRETE PUMPS</span>
+        </div>
+      </div>
+      <h1 class="header-title">Production Tracker</h1>
+      <button id="logout-btn" class="btn btn-ghost">Reset demo</button>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <section class="current-trucks">
+      <div class="section-heading">
+        <h2>Current Production</h2>
+        <span id="role-badge" class="role-badge" aria-live="polite"></span>
+        <button id="manage-recipients-btn" class="header-btn" hidden>Manage Notifications</button>
+      </div>
+      <div id="truck-cards" class="truck-cards"></div>
+      <button id="add-truck-btn" class="btn btn-primary btn-add-truck">+ Add Truck</button>
+    </section>
+
+    <section class="pending-trucks">
+      <h2>Pending Pumps</h2>
+      <div id="pending-cards" class="truck-cards"></div>
+    </section>
+
+    <section class="archive-section">
+      <button id="archive-toggle" class="archive-toggle" aria-expanded="false">
+        <span>Archive</span>
+        <span class="archive-count" id="archive-count">(0)</span>
+        <span class="toggle-icon">▼</span>
+      </button>
+      <div id="archive-content" class="archive-content hidden">
+        <table class="archive-table">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Truck</th>
+              <th>VIN</th>
+              <th>Customer</th>
+              <th>Start Date</th>
+              <th>Completion Date</th>
+              <th>Total Days</th>
+              <th class="archive-actions-col"></th>
+            </tr>
+          </thead>
+          <tbody id="archive-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="recipients-section" class="recipients-section" hidden>
+      <h2>Notification Recipients</h2>
+      <form id="add-recipient-form" class="recipient-form">
+        <input type="text" name="name" placeholder="Name" required maxlength="100" />
+        <input type="tel" name="phone" placeholder="+14165551234 (E.164)" required
+               pattern="^\+[1-9][0-9]{6,14}$" />
+        <label class="recipient-group"><input type="checkbox" name="groups" value="office" /> Office</label>
+        <label class="recipient-group"><input type="checkbox" name="groups" value="paint_manager" /> Paint manager</label>
+        <label class="recipient-group"><input type="checkbox" name="groups" value="production_manager" /> Production manager</label>
+        <label class="recipient-active"><input type="checkbox" name="active" checked /> Active</label>
+        <button type="submit">Add recipient</button>
+      </form>
+      <table id="recipients-table" class="recipients-table">
+        <thead>
+          <tr><th>Name</th><th>Phone</th><th>Groups</th><th>Active</th><th></th></tr>
+        </thead>
+        <tbody id="recipients-tbody"></tbody>
+      </table>
+      <p id="recipients-empty" class="empty-state" hidden>No recipients yet.</p>
+    </section>
+  </main>
+
+  <div id="truck-popup" class="popup-overlay" aria-hidden="true">
+    <div class="popup-fullscreen">
+      <button id="popup-close" class="popup-close" aria-label="Close">×</button>
+      <div class="popup-header">
+        <h2 id="popup-model"></h2>
+        <p id="popup-vin" class="popup-vin"></p>
+      </div>
+      <div id="popup-paused-banner" class="paused-banner hidden">
+        <span>ON HOLD</span>
+        <span id="popup-pause-reason"></span>
+      </div>
+      <div class="popup-timeline">
+        <div id="popup-steps" class="timeline-steps"></div>
+      </div>
+      <div id="popup-admin-controls" class="popup-admin-controls">
+        <div class="admin-buttons">
+          <button id="popup-back-btn" class="btn btn-secondary">Back to Previous Step</button>
+          <button id="popup-advance-btn" class="btn btn-primary">Advance to Next Step</button>
+          <button id="popup-resume-btn" class="btn btn-primary hidden">Resume</button>
+          <div class="pause-control">
+            <button id="popup-pause-btn" class="btn btn-secondary">Hold</button>
+            <select id="popup-pause-reason-select">
+              <option value="">Select reason...</option>
+              <option value="Waiting on parts">Waiting on parts</option>
+              <option value="Pump issue">Pump issue</option>
+              <option value="Truck issue">Truck issue</option>
+              <option value="Truck in dealership">Truck in dealership</option>
+              <option value="Quality hold">Quality hold</option>
+              <option value="Staff shortage">Staff shortage</option>
+              <option value="Weld repair">Weld repair</option>
+              <option value="Shortage of booth">Shortage of booth</option>
+              <option value="other">Other</option>
+            </select>
+            <div id="popup-other-reason-wrap" class="other-reason-wrap hidden">
+              <input type="text" id="popup-other-reason" placeholder="Specify reason...">
+            </div>
+          </div>
+          <button id="popup-edit-truck-btn" class="btn btn-secondary">Edit Truck</button>
+          <button id="popup-edit-eta-btn" class="btn btn-secondary">Edit Date</button>
+          <button id="popup-archive-btn" class="btn btn-secondary">Move to Archive</button>
+        </div>
+      </div>
+      <div class="popup-details">
+        <div class="detail-row">
+          <div class="detail-item">
+            <span class="detail-label">Current Step</span>
+            <span id="popup-current-step" class="detail-value"></span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Truck</span>
+            <span id="popup-truck-number" class="detail-value"></span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Customer</span>
+            <span id="popup-customer" class="detail-value"></span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Completion Date</span>
+            <span id="popup-eta" class="detail-value"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="add-truck-modal" class="modal-overlay" aria-hidden="true">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Add New Truck</h2>
+        <button id="add-truck-close" class="modal-close" aria-label="Close">×</button>
+      </div>
+      <form id="add-truck-form" class="modal-form">
+        <div class="form-group">
+          <label for="add-model">Model</label>
+          <input type="text" id="add-model" required placeholder="e.g. 60-65, CML100HP, CPB">
+        </div>
+        <div class="form-group">
+          <label for="add-truck-number">Truck</label>
+          <input type="text" id="add-truck-number" required placeholder="e.g. T-1042">
+        </div>
+        <div class="form-group">
+          <label for="add-vin">VIN Number</label>
+          <input type="text" id="add-vin" required placeholder="e.g. 1HGBH41JXMN109186">
+        </div>
+        <div class="form-group">
+          <label for="add-customer">Customer</label>
+          <input type="text" id="add-customer" required placeholder="e.g. Acme Concrete">
+        </div>
+        <div class="form-group">
+          <label for="add-pump-arrival">Pump arrival (optional)</label>
+          <input type="text" id="add-pump-arrival" placeholder="e.g. 2026-05-10">
+        </div>
+        <div class="form-group">
+          <label for="add-truck-arrival">Truck arrival (optional)</label>
+          <input type="text" id="add-truck-arrival" placeholder="e.g. 2026-05-12">
+        </div>
+        <div class="modal-actions">
+          <button type="button" id="add-truck-cancel" class="btn btn-ghost">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Truck</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="edit-truck-modal" class="modal-overlay" aria-hidden="true">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Edit Truck</h2>
+        <button id="edit-truck-close" class="modal-close" aria-label="Close">×</button>
+      </div>
+      <form id="edit-truck-form" class="modal-form">
+        <input type="hidden" id="edit-truck-id">
+        <div class="form-group">
+          <label for="edit-model">Model</label>
+          <input type="text" id="edit-model" required>
+        </div>
+        <div class="form-group">
+          <label for="edit-truck-number">Truck</label>
+          <input type="text" id="edit-truck-number" required>
+        </div>
+        <div class="form-group">
+          <label for="edit-vin">VIN Number</label>
+          <input type="text" id="edit-vin" required>
+        </div>
+        <div class="form-group">
+          <label for="edit-customer">Customer</label>
+          <input type="text" id="edit-customer" required>
+        </div>
+        <div class="form-group">
+          <label for="edit-pump-arrival">Pump arrival (optional)</label>
+          <input type="text" id="edit-pump-arrival">
+        </div>
+        <div class="form-group">
+          <label for="edit-truck-arrival">Truck arrival (optional)</label>
+          <input type="text" id="edit-truck-arrival">
+        </div>
+        <div class="modal-actions">
+          <button type="button" id="edit-truck-cancel" class="btn btn-ghost">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

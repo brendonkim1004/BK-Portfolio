@@ -27,7 +27,7 @@ This file was written on 2026-11-19 as a handoff from an earlier session that ra
 - **Type:** Fredoka (weight 600) for display, Nunito for body. Self-hosted through `@fontsource`.
 - **Look:** dark, ink-navy space with cream text and chunky saturated cube colours. All colours live in `src/styles/palette.js`.
 - **The cube frees and solves itself** (Brendon, 2026-11-19): once scroll reaches the cube it wiggles, lifts and solves on a timer (about 5.6 s), with no further scrolling needed. Scrolling back up above the moon rewinds it into the crater. This replaces the design doc's scroll-driven solve. Timings are the constants at the top of `src/scene/cube/index.js`.
-- **Short descent, no floating text** (Brendon, 2026-11-19): the descent is 190svh (160svh on phones) with nothing written over it; Brendon removed the floating notes and the scroll hint. The only loose line left is "Hang on. What's that?" at the moon.
+- **Short descent, no floating text** (Brendon, 2026-11-19): the descent is 190svh (160svh on phones) with nothing written over it; Brendon removed the floating notes and the scroll hint. The last loose line, "Hang on. What's that?" at the moon, was removed on 2026-11-20, so nothing is written between the name and the contact section.
 - **Face hover shows a preview card above the cube**: a small drawn sketch (`src/ui/previews.js`, chosen by each project's `preview` field), the title and the summary. Project titles are written in Title Case.
 - **Two placeholder puzzles beside the cube** (Brendon, 2026-11-19): a Pyraminx on the left and a Megaminx on the right, each resting flat on the floor of its own crater (nothing buried) and lifting a little on hover (`src/scene/objects/puzzles.js`, placed in `world.js`; craters come from `moon.addCrater`). They only show "Coming Soon" on hover for now; Brendon plans to put more projects in them later.
 - **The solved cube is bigger**: it grows to 1.3x on wide screens (1.1x on phones) while it solves (`cubeGrow` in `world.js`).
@@ -37,6 +37,10 @@ This file was written on 2026-11-19 as a handoff from an earlier session that ra
 - **No pills or sticker boxes anywhere** (Brendon found them generic): the major, school, floating notes, hints and "Coming Soon" labels are plain type, and buttons use the `.cube-link` style in `site.css`: plain words led by one small cube-sticker square that makes a quarter turn on hover.
 - **The contact section is right after the cube** (Brendon, 2026-11-19): there is no pause section at all (`#hold` has no height): scrolling on from the solved cube tips the page straight down onto the moon, and that ending follows the scrollbar exactly (`scrub: true`) so the 3D moon and the contact text stay together. Scroll is held at the cube only while it is solving (`holdAtCube` in `scroll.js`, called from `main.js`); once solved nothing is locked. Stopping just short of the cube still settles gently onto it.
 - **Sound** (Brendon, 2026-11-20): on by default, kept quiet (`LEVEL` in `src/audio/sound.js`), switched with the "Sound on / Sound off" corner link and remembered. Every sound is synthesised (no audio files, no downloads, nothing copied from a film). A soft wind loops in the background. The name intro types on one letter at a time (name, then major, then school) with one click per letter and no riser or finishing chord, after the Guardians of the Galaxy location cards. Closing a project plays the gather sound, including via the browser back button. Browsers only allow sound after a click, tap or key press on the site, so a first-ever visit is silent until then; a reload usually plays straight away.
+- **Working demos of the two internal apps** (Brendon, 2026-11-20): the truck tracker and inventory project pages show Brendon's real front-end code running on made-up data, in a frame on the project page with an "Open full screen" link (`project.prototype` in `src/data/projects.js`, frame built in `src/ui/projectView.js`). Everyone is an admin/owner, nothing is saved (reload resets), nothing is sent. Brendon chose to keep the Concord logo and the 12 real step names; pump models, build times, customers, VINs, parts, bins, quantities, people and phone numbers are invented. Never copy the real apps' data files, migrations, env files or Supabase code into this repo.
+  - `demos/truck-tracker/`: plain JS, built by this project's Vite as an extra page. `fakeData.js` holds the trucks and a small stand-in for the database client.
+  - `demos/inventory/`: its own small Next.js/React project (the real app is React; this is the one place React is allowed). Fake database in `lib/demo/`, clickable sample barcodes on the scan page (`components/DemoLabels.tsx`). After changing it run `npm run build:demos`, which rebuilds it and copies the pages to `public/demos/inventory/` (those built pages are what the site serves).
+- **Project links**: each project in `src/data/projects.js` has `links: [{ label, url }]`, shown as buttons at the bottom of its page; `liveUrl` adds "Visit the live site".
 - **All 3D objects are built in code** (no Blender models). Each object is its own module so one could be swapped for a model later.
 - **Launch projects (4 of 6 faces):** truck production tracker, inventory + barcode system, Concord online store, Concord pre-owned pumps store. Other faces say "Coming soon".
 - **The two stores** may be linked live (check first that nothing account-specific shows) or shown as demos. Brendon was open to either; settle it when those projects are discussed.
@@ -71,6 +75,8 @@ src/scene/cube/         solve.js (scramble + snapshots), model.js (cubies, face 
                         burst.js (shards + particles), index.js (pose, drag, hover, click)
 src/dev/fps.js          dev-only frame-rate readout
 src/pages/              the two decision pages
+demos/                  working fake-data copies of the truck tracker and the inventory system
+scripts/build-demos.mjs rebuilds the inventory demo
 tests/                  palette contrast and build checks
 ```
 
@@ -86,6 +92,7 @@ tests/                  palette contrast and build checks
 npm run dev      start the site (open the URL it prints)
 npm test         palette contrast and build checks
 npm run build    production build into dist/
+npm run build:demos   rebuild the inventory demo into public/demos/inventory (only after editing demos/inventory)
 ```
 
 ## Loose ends
@@ -94,6 +101,5 @@ npm run build    production build into dist/
 - `npm test` runs a full build each time; split that out if it gets slow.
 - `contrastRatio` in `palette.js` returns NaN for short hex like `#fff`.
 - The dark outline colour is nearly invisible on the navy background (a palette choice still open).
-- On phones the "Hang on" line runs under the corner stickers during the moon stretch.
 - `prefers-reduced-motion` is not handled yet (Milestone 6).
 - The production bundle is about 740 kB before compression (207 kB gzipped), mostly Three.js; measure before deciding on a loader (Milestone 6).

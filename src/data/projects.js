@@ -3,6 +3,11 @@
 // White (top), red and blue are the three showing when the cube arrives.
 // Faces with no project say "Coming soon".
 //
+// links (optional): buttons shown at the bottom of the project page, for example
+//   links: [{ label: 'Read the case study', url: 'https://...' }],
+// The truck tracker and inventory system have none: their code stays private.
+// liveUrl (the two stores): adds a "Visit the live site" button.
+//
 // DRAFT: only the titles are real. Every other line is a placeholder for Brendon to write.
 // Nothing here may ever contain real Concord data.
 const TO_WRITE = 'Brendon to write.';
@@ -20,7 +25,7 @@ export const projects = [
     tech: [],
     result: `The result. ${TO_WRITE}`,
     type: 'internal-prototype',
-    prototype: null, // the fake-data demo module, once its screens are agreed
+    prototype: '/demos/truck-tracker/dashboard.html', // the working fake-data demo (see demos/)
   },
   {
     id: 'inventory-barcode',
@@ -34,7 +39,7 @@ export const projects = [
     tech: [],
     result: `The result. ${TO_WRITE}`,
     type: 'internal-prototype',
-    prototype: null,
+    prototype: '/demos/inventory/scan/index.html',
   },
   {
     id: 'online-store',
@@ -46,6 +51,7 @@ export const projects = [
     built: `What I built. ${TO_WRITE}`,
     role: `My role. ${TO_WRITE}`,
     tech: [],
+    links: [],
     result: `The result. ${TO_WRITE}`,
     type: 'public-site', // live link or demo: still to be decided
     liveUrl: null,
@@ -60,6 +66,7 @@ export const projects = [
     built: `What I built. ${TO_WRITE}`,
     role: `My role. ${TO_WRITE}`,
     tech: [],
+    links: [],
     result: `The result. ${TO_WRITE}`,
     type: 'public-site',
     liveUrl: null,

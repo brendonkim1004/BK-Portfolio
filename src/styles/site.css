@@ -172,18 +172,6 @@ html.on-moon .corner { color: var(--ink); }
   height: 150svh; /* the camera settles over the moon here; the cube frees and solves itself on arrival */
 }
 
-.moon-line {
-  position: absolute;
-  top: 22%;
-  left: var(--gutter);
-  margin: 0;
-  max-width: 14ch;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: clamp(1.75rem, 4.2vw, 3.5rem);
-  line-height: 1;
-}
-
 /* ---- 4. Hold ---- */
 /* No scroll of its own: the page tips down onto the moon as soon as you scroll on from the solved
    cube. The section only holds the cube's fixed helpers (drag area, hint, hover card). */
@@ -544,6 +532,42 @@ html.on-moon .corner { color: var(--ink); }
   opacity: 0.8;
 }
 
+/* A working demo fills the screen area. The frame sits straight so the demo's text stays sharp. */
+.demo-frame:has(.has-demo) { transform: none; }
+.demo-screen.has-demo {
+  display: block;
+  aspect-ratio: auto;
+  height: min(82svh, 50rem);
+  padding: 0;
+  overflow: hidden;
+  background: #fff;
+}
+.demo-screen.has-demo p { display: none; }
+.demo-screen iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.pv-demo figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 2rem;
+}
+.demo-open { text-decoration: none; }
+.demo-open[hidden] { display: none; }
+.pv-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 2rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.pv-links .cube-link { text-decoration: none; }
+
 .pv-demo figcaption {
   margin-top: 1.6rem;
   font-weight: 700;
@@ -772,7 +796,6 @@ html.on-moon .corner { color: var(--ink); }
   #about { justify-content: flex-end; padding-bottom: 6.5rem; }
   .about-text { max-width: 100%; }
   #descent { height: 160svh; }
-  .moon-line { top: 14%; }
   .pv-story,
   .pv-detail { grid-template-columns: 1fr; }
   .pv-story { margin: 2.5rem 0 3.5rem; }
