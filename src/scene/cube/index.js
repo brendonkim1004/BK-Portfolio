@@ -69,7 +69,9 @@ export function createCube({ hitEl, camera, isPhone, burst, onFaceClick, onLabel
   const tumble = new THREE.Quaternion();
 
   const wedged = new THREE.Quaternion().setFromEuler(new THREE.Euler(0.55, 0.5, 0.35));
-  const display = new THREE.Quaternion().setFromEuler(new THREE.Euler(0.48, -0.7, 0));
+  // The solved cube is shown from its white / red / blue corner: white on top, red on the left,
+  // blue on the right. (The extra quarter turn brings that corner round to the front.)
+  const display = new THREE.Quaternion().setFromEuler(new THREE.Euler(0.48, -0.7 - Math.PI / 2, 0));
   const identity = new THREE.Quaternion();
 
   // ---- which face is under the pointer ----

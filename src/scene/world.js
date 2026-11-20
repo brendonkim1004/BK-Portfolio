@@ -14,7 +14,7 @@ import { createCube } from './cube/index.js';
 const DESCENT_END = -40; // camera height when the descent stretch finishes
 const MOON_TOP = -48; // the moon's surface
 const ARRIVE = MOON_TOP + 4; // camera height once it has settled over the moon
-const OUTRO_RISE = 10; // how far the camera drifts up for the outro
+const OUTRO_SINK = 5; // how far the camera sinks toward the moon as the page goes down into it
 const CAMERA_Z = 14;
 
 const easeOut = (t) => 1 - (1 - t) ** 3;
@@ -94,11 +94,15 @@ export function createWorld(stage, { hitEl, isPhone, onSideLabel, ...cubeOptions
 
   // ---- the two placeholder puzzles, each sitting in its own crater either side of the cube ----
   // rest: height of the centre above the ground, chosen so the flat base just touches the crater floor
-  // (nothing is buried). top: where the label goes. craterSize: radius of the crater it sits in.
+  // (nothing is buried). craterSize: radius of its crater.
+  // The label is centred over the part the eye reads as the middle: "tip" is how far that part is
+  // from the centre along the puzzle's own lean (the pyramid's point; 0 for the ball-shaped Megaminx),
+  // and "gap" is how far straight up from there the label floats.
   const SIDE_Z = -1;
+  const SIDE_LIFT = 0.6; // how far they rise on hover (matches the lift in puzzles.js)
   const sides = [
-    { object: createPyraminx(), side: -1, rest: 0.62, top: 3.2, craterSize: 2.0, hover: 0 },
-    { object: createMegaminx(), side: 1, rest: 1.08, top: 2.95, craterSize: 1.6, hover: 0 },
+    { object: createPyraminx(), side: -1, rest: 0.62, tip: 1.7, gap: 0.4, craterSize: 2.0, hover: 0 },
+    { object: createMegaminx(), side: 1, rest: 1.08, tip: 0, gap: 1.65, craterSize: 1.6, hover: 0 },
   ];
   const moonCentre = new THREE.Vector3(0, MOON_TOP - MOON_RADIUS, 0);
   const groundNormal = new THREE.Vector3();
@@ -188,6 +192,7 @@ export function createWorld(stage, { hitEl, isPhone, onSideLabel, ...cubeOptions
       groundNormal.set(s.side * x, height, SIDE_Z).normalize();
       s.object.position.copy(moonCentre).addScaledVector(groundNormal, MOON_RADIUS + s.rest * scale);
       s.object.quaternion.setFromUnitVectors(straightUp, groundNormal);
+      s.normal = groundNormal.clone(); // the way the puzzle leans, used to place its label
       s.object.scale.setScalar(scale);
       s.crater.place(s.side * x, SIDE_Z, scale);
       // On narrow screens the puzzles sit inside the cube's big crater already, so they need none of their own.
@@ -206,7 +211,7 @@ export function createWorld(stage, { hitEl, isPhone, onSideLabel, ...cubeOptions
     const camY =
       DESCENT_END * journey.descent +
       (ARRIVE - DESCENT_END) * easeOut(journey.moon) +
-      OUTRO_RISE * easeInOut(journey.outro);
+      -OUTRO_SINK * easeInOut(journey.outro);
 
     camera.position.set(pointer.x * 0.45, camY + pointer.y * 0.25, CAMERA_Z);
     camera.lookAt(0, camY, 0);
@@ -252,9 +257,10 @@ export function createWorld(stage, { hitEl, isPhone, onSideLabel, ...cubeOptions
     }
     if (hoveredSide) {
       // Follow the puzzle on screen, since the camera moves with scroll and the cursor.
-      const { object, top } = hoveredSide;
-      labelPoint.copy(object.position);
-      labelPoint.y += top * object.scale.x;
+      const { object, tip, gap, normal } = hoveredSide;
+      const size = object.scale.x;
+      labelPoint.copy(object.position).addScaledVector(normal, (SIDE_LIFT + tip) * size);
+      labelPoint.y += gap * size;
       labelPoint.project(camera);
       onSideLabel?.({
         x: (labelPoint.x * 0.5 + 0.5) * window.innerWidth,

@@ -1,6 +1,6 @@
 // Every project on the site lives here. Adding a project = adding one object.
-// faceColor picks the cube face: white (top), green (front), red (right), orange (left),
-// blue (back) or yellow (bottom). The first three are the ones showing when the cube arrives.
+// faceColor picks the cube face: white, red, blue, green, orange or yellow.
+// White (top), red and blue are the three showing when the cube arrives.
 // Faces with no project say "Coming soon".
 //
 // DRAFT: only the titles are real. Every other line is a placeholder for Brendon to write.
@@ -12,7 +12,7 @@ export const projects = [
     id: 'truck-tracker',
     title: 'Truck Production Tracker',
     preview: 'board', // which sketch the hover card shows (see src/ui/previews.js)
-    faceColor: 'green',
+    faceColor: 'blue',
     summary: `One line on what this is. ${TO_WRITE}`,
     problem: `The problem, in one line. ${TO_WRITE}`,
     built: `What I built. ${TO_WRITE}`,

@@ -90,23 +90,22 @@ main > section {
   white-space: nowrap;
 }
 
-/* Two stickers under the name: the major, then the school. Each sits on its own line. */
-.about-role,
-.about-school {
-  display: block;
-  width: fit-content;
-  transform-origin: left center;
-}
-
-.about-role {
-  transform: rotate(-2deg);
-  background: var(--face-yellow);
-  margin: 0 0 0.9rem;
+/* Under the name: the major and the school as plain type, with no boxes round them.
+   Size and colour carry the order: the major in the display face, the school smaller in yellow. */
+.about-major {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.25rem, 2.1vw, 1.875rem);
+  line-height: 1.15;
+  max-width: 24ch;
+  margin: 0 0 0.5rem;
 }
 
 .about-school {
-  transform: rotate(1deg);
-  margin: 0 0 0 0.6rem;
+  font-weight: 700;
+  font-size: clamp(1rem, 1.3vw, 1.1875rem);
+  color: var(--face-yellow);
+  margin: 0;
 }
 
 .scroll-hint {
@@ -622,41 +621,108 @@ main > section {
 }
 
 /* ---- 7. Outro ---- */
+/* The page ends inside the moon. This section is solid moon-grey ground with a curved top edge,
+   so scrolling on simply carries it up over the scene: nothing here is animated. */
 #outro {
   min-height: 100svh;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: flex-start;
+  padding-top: 12vh;
+  padding-bottom: 12vh;
+  color: var(--ink);
+  background: var(--moon);
+}
+
+/* The curved horizon that leads the section up the screen. */
+.moon-edge {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% - 1px);
+  width: 100%;
+  height: clamp(3.5rem, 9vw, 9rem);
+  overflow: visible;
+}
+
+.moon-edge-fill { fill: var(--moon); }
+
+.moon-edge-line {
+  fill: none;
+  stroke: var(--outline);
+  stroke-width: 4;
+  vector-effect: non-scaling-stroke;
+}
+
+/* A few craters seen from above, kept to the right so they never sit under the text. */
+.pit {
+  position: absolute;
+  border: 3px solid var(--outline);
+  border-radius: 50%;
+  background: var(--moon-shade);
+}
+
+.pit-a { right: 7%; top: 16%; width: 15vw; height: 11vw; transform: rotate(-8deg); }
+.pit-b { right: 17%; top: 60%; width: 6vw; height: 4.5vw; transform: rotate(6deg); }
+.pit-c { right: 5%; bottom: 9%; width: 9vw; height: 6.5vw; transform: rotate(-3deg); }
+
+.outro-inner {
+  position: relative; /* above the craters */
+  max-width: 50rem;
 }
 
 .outro-title {
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: clamp(3rem, 9vw, 7rem);
-  line-height: 0.95;
-  margin: 0 0 1rem;
+  font-size: clamp(3.5rem, 13vw, 11rem);
+  line-height: 0.9;
+  letter-spacing: -0.01em;
+  margin: 0 0 clamp(1.75rem, 4vw, 3.25rem);
 }
 
-.outro-line {
-  font-size: clamp(1.0625rem, 1.5vw, 1.3125rem);
-  margin: 0 0 1.75rem;
-  max-width: 28rem;
-}
-
+/* Links are plain big words on ruled lines, not buttons. */
 .outro-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem 0.9rem;
   margin: 0;
   padding: 0;
   list-style: none;
+  border-top: 3px solid var(--outline);
 }
 
-.outro-links li:nth-child(1) .sticker { background: var(--face-yellow); transform: rotate(-3deg); }
-.outro-links li:nth-child(2) .sticker { background: var(--face-blue); transform: rotate(2deg); }
-.outro-links li:nth-child(3) .sticker { background: var(--face-green); transform: rotate(-1.5deg); }
-.outro-links li:nth-child(4) .sticker { background: var(--face-orange); transform: rotate(3deg); }
+.outro-link {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 0.85rem 0 1rem;
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 3px solid var(--outline);
+}
+
+.outro-link-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  line-height: 1;
+  transition: transform 0.25s ease;
+}
+
+.outro-link-detail {
+  font-weight: 700;
+  font-size: clamp(0.9375rem, 1.3vw, 1.125rem);
+  text-align: right;
+  transition: transform 0.25s ease;
+}
+
+/* Pointing at a row nudges its two ends toward each other. */
+.outro-link:hover .outro-link-name,
+.outro-link:focus-visible .outro-link-name { transform: translateX(0.7rem); }
+.outro-link:hover .outro-link-detail,
+.outro-link:focus-visible .outro-link-detail { transform: translateX(-0.7rem); }
+
+.outro-link:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 4px;
+}
 
 /* ---- always-on corner sticker ---- */
 .corner {
@@ -717,6 +783,9 @@ button.sticker:focus-visible {
   .pv-result { margin-top: 0; }
   .pv-page,
   .lv-page { padding-top: 5.5rem; }
+  .pit-a { top: 16%; width: 26vw; height: 19vw; }
+  .pit-b { display: none; }
+  .pit-c { bottom: 3%; width: 20vw; height: 14vw; }
   .demo-frame { padding: 0.6rem; }
   .hud { letter-spacing: 0.12em; }
   .hud::before,
