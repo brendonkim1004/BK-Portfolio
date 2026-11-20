@@ -74,7 +74,7 @@ export function createProjectView({ burst, onOpen, onClosed, onCovered, onReques
   let returnFocus = null;
 
   function fill(project, faceNumber) {
-    const theme = palette.faces[project.faceColor];
+    const theme = palette.cube[project.faceColor];
     view.style.setProperty('--theme', theme);
     flood.style.backgroundColor = theme;
     view.querySelector('.pv-title').textContent = project.title;

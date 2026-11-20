@@ -38,7 +38,7 @@ const label = createFaceLabel(document.querySelector('#face-label'), { isPhone }
 function showLabel(index) {
   if (index === null) return label.hide();
   const { color, project } = faces[index];
-  label.show(palette.faces[color], project);
+  label.show(palette.cube[color], project);
 }
 
 // ---- project view ----

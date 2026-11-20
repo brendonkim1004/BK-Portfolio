@@ -291,7 +291,7 @@ export function createCube({ hitEl, camera, isPhone, burst, onFaceClick, onLabel
   };
 
   // Called just before a burst so the shards match the clicked face.
-  spin.setBurstFace = (index) => fx.setColor(palette.faces[FACES[index].color]);
+  spin.setBurstFace = (index) => fx.setColor(palette.cube[FACES[index].color]);
 
   spin.isInHold = () => inHold;
 

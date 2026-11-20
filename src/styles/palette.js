@@ -1,5 +1,18 @@
 // The one place colours live. CSS reads them as custom properties (applyPalette),
 // and the 3D scene will import the same hex values later.
+// The six sticker colours used all over the site (notes, planets, labels).
+const faces = {
+  red: '#F2503B',
+  orange: '#FF9A2E',
+  yellow: '#FFD23F',
+  green: '#3DBE7B',
+  blue: '#3D8BF2',
+  pink: '#FF7FB0',
+};
+
+// A real Rubik's cube has white where the site palette has pink.
+const white = '#FFFBF0';
+
 export const palette = {
   ink: '#141B3C', // deep ink-navy space
   inkDeep: '#0C1028', // far background
@@ -9,13 +22,31 @@ export const palette = {
   dust: '#E9E5D8', // the puff when the cube pulls free
   cubeBody: '#232B55', // the cube's plastic, a step lighter than space so its shape still reads
   outline: '#0A0D1F', // chunky outlines and hard shadows
-  faces: {
-    red: '#F2503B',
-    orange: '#FF9A2E',
-    yellow: '#FFD23F',
-    green: '#3DBE7B',
-    blue: '#3D8BF2',
-    pink: '#FF7FB0',
+  faces,
+  // The cube's six faces, in the standard scheme: white opposite yellow, red opposite orange,
+  // blue opposite green. projects.js picks a face by these names.
+  cube: {
+    white,
+    yellow: faces.yellow,
+    red: faces.red,
+    orange: faces.orange,
+    green: faces.green,
+    blue: faces.blue,
+  },
+  // The Megaminx's twelve standard colours.
+  megaminx: {
+    white,
+    grey: '#A4A9B8',
+    red: faces.red,
+    orange: faces.orange,
+    yellow: faces.yellow,
+    cream: '#FFF1B0',
+    green: faces.green,
+    lightGreen: '#B4E655',
+    blue: faces.blue,
+    lightBlue: '#8FD2FF',
+    purple: '#9B5DE5',
+    pink: faces.pink,
   },
 };
 

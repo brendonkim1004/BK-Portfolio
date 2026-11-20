@@ -66,6 +66,16 @@ function puzzle(body, shapes, orientation, lift) {
 }
 
 const UP = new THREE.Vector3(0, 1, 0);
+
+// Puts directions in clockwise order as seen from above (looking down the "up" direction).
+// Returns their indexes. Standard colour schemes are described this way round.
+function clockwiseFromAbove(directions, up) {
+  const flat = (d) => d.clone().addScaledVector(up, -d.dot(up));
+  const ref = flat(directions[0]).normalize();
+  const side = up.clone().cross(ref);
+  const angle = (d) => Math.atan2(d.dot(side), d.dot(ref));
+  return directions.map((_, i) => i).sort((a, b) => angle(directions[b]) - angle(directions[a]));
+}
 // A lean (x, y, z angles) applied after the puzzle has been stood the right way up.
 const lean = (x, y, z) => new THREE.Quaternion().setFromEuler(new THREE.Euler(x, y, z));
 
@@ -77,7 +87,16 @@ export function createPyraminx(radius = 1.7) {
     [-1, 1, -1],
     [1, -1, -1],
   ].map((c) => new THREE.Vector3(...c).multiplyScalar(radius / Math.sqrt(3)));
-  const colors = [palette.faces.yellow, palette.faces.green, palette.faces.red, palette.faces.blue];
+  // Standard Pyraminx colours: yellow underneath, then green, red and blue going clockwise from above
+  // (green in front has red on its left and blue on its right). Face f is the one opposite corner f,
+  // and corner 0 is the point that ends up on top.
+  const top = corners[0].clone().normalize();
+  const sideFaces = [1, 2, 3];
+  const outward = sideFaces.map((f) => corners[f].clone().normalize().negate());
+  const colors = [palette.faces.yellow];
+  clockwiseFromAbove(outward, top).forEach((i, k) => {
+    colors[sideFaces[i]] = [palette.faces.green, palette.faces.red, palette.faces.blue][k];
+  });
 
   const shapes = [];
   corners.forEach((opposite, f) => {
@@ -131,7 +150,23 @@ export function createMegaminx(radius = 1.3) {
     }
   }
 
-  const colors = Object.values(palette.faces);
+  // Standard Megaminx colours: white on top with green, purple, yellow, blue and red round it
+  // (clockwise from above, starting at the front), and grey underneath. Each lower face is the
+  // pale partner of the face opposite it.
+  const m = palette.megaminx;
+  const upper = [m.green, m.purple, m.yellow, m.blue, m.red];
+  const partner = [m.lightGreen, m.pink, m.cream, m.lightBlue, m.orange];
+  const directions = normals.map((n) => new THREE.Vector3(...n).normalize());
+  const top = new THREE.Vector3(0, phi, 1).normalize(); // the face opposite the one it sits on
+  const colors = [];
+  const ring = directions.map((_, f) => f).filter((f) => directions[f].dot(top) > 0.1 && directions[f].dot(top) < 0.9);
+  clockwiseFromAbove(ring.map((f) => directions[f]), top).forEach((i, k) => {
+    const f = ring[i];
+    colors[f] = upper[k];
+    colors[directions.findIndex((d) => d.dot(directions[f]) < -0.99)] = partner[k];
+  });
+  colors[directions.findIndex((d) => d.dot(top) > 0.99)] = m.white;
+  colors[directions.findIndex((d) => d.dot(top) < -0.99)] = m.grey;
   const shapes = [];
   normals.forEach((direction, f) => {
     const normal = new THREE.Vector3(...direction).normalize();
@@ -155,7 +190,7 @@ export function createMegaminx(radius = 1.3) {
     // Inner point of each corner diamond: step in from the corner along both of its edges.
     const Q = V.map((v, k) => v.clone().add(at(k + 1).clone().sub(v).multiplyScalar(CUT)).add(at(k - 1).clone().sub(v).multiplyScalar(CUT)));
 
-    const color = colors[f % colors.length];
+    const color = colors[f];
     shapes.push({ points: shrink(Q, 0.84), normal, color }); // centre pentagon
     for (let k = 0; k < 5; k++) {
       const next = (k + 1) % 5;

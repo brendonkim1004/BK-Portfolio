@@ -5,14 +5,16 @@ import { palette } from '../../styles/palette.js';
 import { addOutline, toon } from '../materials.js';
 import { HOME } from './solve.js';
 
-// The six faces. "color" is a key in palette.faces and is what projects.js maps to.
+// The six faces, in the standard Rubik's cube scheme: white on top with yellow underneath,
+// green in front with blue behind, red on the right with orange on the left.
+// "color" is a key in palette.cube and is what projects.js maps to.
 export const FACES = [
   { normal: [1, 0, 0], color: 'red' },
   { normal: [-1, 0, 0], color: 'orange' },
-  { normal: [0, 1, 0], color: 'yellow' },
-  { normal: [0, -1, 0], color: 'green' },
-  { normal: [0, 0, 1], color: 'blue' },
-  { normal: [0, 0, -1], color: 'pink' },
+  { normal: [0, 1, 0], color: 'white' },
+  { normal: [0, -1, 0], color: 'yellow' },
+  { normal: [0, 0, 1], color: 'green' },
+  { normal: [0, 0, -1], color: 'blue' },
 ];
 
 const BODY = 0.95; // cubie size; the small gap between cubies reads as a dark seam
@@ -59,7 +61,7 @@ export function buildCubies() {
       const outward = face.normal.some((n, axis) => n !== 0 && n === home[axis]);
       if (!outward) return;
       const normal = new THREE.Vector3(...face.normal);
-      const sticker = new THREE.Mesh(stickerGeo, toon(palette.faces[face.color]));
+      const sticker = new THREE.Mesh(stickerGeo, toon(palette.cube[face.color]));
       sticker.quaternion.setFromUnitVectors(forward, normal);
       sticker.position.copy(normal).multiplyScalar(BODY / 2 - 0.01);
       sticker.userData = { face: index, base: sticker.position.clone(), normal };

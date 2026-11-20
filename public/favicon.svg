@@ -1,5 +1,5 @@
 <!-- Site icon: a cartoon Rubik's cube seen from a corner and tipped to one side.
-     Colours match src/styles/palette.js (yellow top, blue left, red right, navy body). -->
+     Colours match src/styles/palette.js (white top, green front, red right, navy body). -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <defs>
     <!-- One face: a navy square with nine rounded stickers. Each use below skews it into place. -->
@@ -20,10 +20,10 @@
   </defs>
   <g transform="rotate(-14 32 32)">
     <!-- left face -->
-    <use href="#face" color="#3D8BF2" transform="matrix(0.75 0.4333 0 0.8667 9.5 19)"/>
+    <use href="#face" color="#3DBE7B" transform="matrix(0.75 0.4333 0 0.8667 9.5 19)"/>
     <!-- right face -->
     <use href="#face" color="#F2503B" transform="matrix(0.75 -0.4333 0 0.8667 32 32)"/>
     <!-- top face -->
-    <use href="#face" color="#FFD23F" transform="matrix(0.75 -0.4333 0.75 0.4333 9.5 19)"/>
+    <use href="#face" color="#FFFBF0" transform="matrix(0.75 -0.4333 0.75 0.4333 9.5 19)"/>
   </g>
 </svg>

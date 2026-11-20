@@ -36,7 +36,7 @@ export function createListView({ projects, onPick, onOpen, onClose }) {
 
     const swatch = document.createElement('span');
     swatch.className = 'lv-swatch';
-    swatch.style.backgroundColor = palette.faces[project.faceColor];
+    swatch.style.backgroundColor = palette.cube[project.faceColor];
 
     const text = document.createElement('span');
     text.className = 'lv-text';
