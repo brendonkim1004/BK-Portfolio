@@ -158,6 +158,7 @@ export function createWorld(stage, { hitEl, isPhone, onSideLabel, ...cubeOptions
     const centreX = (centre.x * 0.5 + 0.5) * window.innerWidth;
     const push = e.clientX >= centreX ? SPIN_KICK : -SPIN_KICK;
     s.speed = Math.min(SPIN_MAX, Math.max(-SPIN_MAX, s.speed + push));
+    cubeOptions.onSound?.('spin');
   });
   let canSpin = false; // whether the mouse is over something spinnable (shows the hand cursor)
 

@@ -6,6 +6,7 @@ import gsap from 'gsap';
 import { applyPalette, palette } from './styles/palette.js';
 import { setupScroll } from './scroll/scroll.js';
 import { setupTextMotion } from './ui/textMotion.js';
+import { createSound } from './audio/sound.js';
 import { createFaceLabel } from './ui/faceLabel.js';
 import { createFaceButtons } from './ui/faceButtons.js';
 import { createProjectView } from './ui/projectView.js';
@@ -19,7 +20,23 @@ import { createFpsMeter } from './dev/fps.js';
 applyPalette();
 
 const { journey, lenis, scrollToWork, jumpToWork, holdAtCube } = setupScroll();
-setupTextMotion();
+// ---- sound: off until the visitor turns it on ----
+const sound = createSound();
+const soundToggle = document.querySelector('#sound-toggle');
+function showSoundState() {
+  soundToggle.setAttribute('aria-pressed', String(sound.isOn()));
+  soundToggle.textContent = sound.isOn() ? 'Sound on' : 'Sound off';
+}
+showSoundState();
+soundToggle.addEventListener('click', () => {
+  sound.setOn(!sound.isOn());
+  showSoundState();
+  // Turning sound on at the top of the page replays the name intro, this time with its sound
+  // (browsers do not allow sound on the very first load, before any click).
+  if (sound.isOn() && window.scrollY < window.innerHeight * 0.5) setupTextMotion({ sound });
+});
+
+setupTextMotion({ sound });
 
 const isPhone = window.matchMedia('(pointer: coarse)').matches;
 // Each cube face with the project it opens (or null for "Coming soon").
@@ -65,11 +82,13 @@ function openProject(project, { origin, instant = false } = {}) {
   const faceIndex = faces.findIndex((face) => face.project === project);
   world?.cube.setBurstFace(faceIndex);
   view.open(project, { origin, faceNumber: faceIndex + 1, instant: instant || !world });
+  if (!instant && world) sound.play('burst');
   const hash = `#project/${project.id}`;
   if (location.hash !== hash) history.pushState(null, '', hash);
 }
 
 function closeProject() {
+  if (view.isOpen() && world) sound.play('gather');
   view.close();
   if (location.hash.startsWith('#project/')) {
     history.replaceState(null, '', location.pathname + location.search);
@@ -158,6 +177,7 @@ try {
     isPhone,
     burst,
     onLabel: showLabel,
+    onSound: (name) => sound.play(name), // cube turns, the solve, and spinning planets
     onSideLabel: showSideLabel,
     // Returns true if the face opened a project; "Coming soon" faces just give a small nudge.
     onFaceClick: (index, point) => {

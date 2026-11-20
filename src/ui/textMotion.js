@@ -21,12 +21,20 @@ const SCRAMBLE = 0.5; // how long one letter flickers before it locks in, second
 const SWAP = 0.05; // how often a flickering letter changes symbol, seconds
 const SYMBOLS = '#%&/\\<>[]{}=+*?!01XZNK'; // what a letter flickers through
 
-export async function setupTextMotion() {
+let running = false;
+
+// When the name's last letter locks in (seconds): the rising sound is timed to end there.
+const nameDone = (letters) => letters.find((l) => l.last).begin + SCRAMBLE;
+
+// sound is optional: { play(name, options) }. Safe to call again to replay the intro.
+export async function setupTextMotion({ sound } = {}) {
+  if (running) return;
   const targets = LINES.map((line) => ({ ...line, el: document.querySelector(line.selector) }));
 
   // People who ask for less motion just get the text.
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
+  running = true;
   gsap.set(targets.map((t) => t.el), { opacity: 0 }); // hidden straight away, so nothing flashes first
   await document.fonts.ready; // letters must be measured in the real font
   ScrollTrigger.refresh();
@@ -52,11 +60,14 @@ export async function setupTextMotion() {
       char.style.opacity = '0';
       letters.push({ el: char, real: char.textContent, begin: start + i * gap, shown: -1, done: false });
     });
+    // The last letter of the name is the cue for the big chord.
+    if (el === targets[0].el) letters[letters.length - 1].last = true;
     gsap.set(el, { opacity: 1 }); // the line is visible again; its letters are what is hidden now
   }
 
   const total = Math.max(...letters.map((l) => l.begin)) + SCRAMBLE;
   const clock = { time: 0 };
+  sound?.play('riser', { length: nameDone(letters) });
 
   function update() {
     for (const letter of letters) {
@@ -67,6 +78,7 @@ export async function setupTextMotion() {
         letter.el.textContent = letter.real;
         letter.el.style.opacity = '1';
         letter.done = true;
+        sound?.play(letter.last ? 'arrive' : 'blip');
         continue;
       }
       // Still flickering: pick a new symbol every so often, dimmer than the finished letter.
@@ -85,6 +97,9 @@ export async function setupTextMotion() {
     ease: 'none',
     onUpdate: update,
     // Put the plain text back, so the page is ordinary HTML again and wraps normally on resize.
-    onComplete: () => splits.forEach((split) => split.revert()),
+    onComplete: () => {
+      splits.forEach((split) => split.revert());
+      running = false;
+    },
   });
 }

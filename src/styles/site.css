@@ -106,6 +106,11 @@ main > section {
 html.on-moon .corner { color: var(--ink); }
 #view-list { --marker: var(--face-blue); }
 
+/* The sound switch: its square is hollow while sound is off and red while it is on. */
+#sound-toggle { --marker: transparent; }
+#sound-toggle::before { border-color: currentColor; }
+#sound-toggle[aria-pressed="true"] { --marker: var(--face-red); }
+
 /* ---- 1. About ---- */
 #about {
   min-height: 100svh;

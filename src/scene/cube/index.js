@@ -3,7 +3,7 @@
 import * as THREE from 'three';
 import gsap from 'gsap';
 import { FACES, buildCubies } from './model.js';
-import { HOME, buildStates, poseCubies } from './solve.js';
+import { HOME, SCRAMBLE, buildStates, poseCubies } from './solve.js';
 import { createBurstFx } from './burst.js';
 import { createCelebration } from './celebrate.js';
 import { palette } from '../../styles/palette.js';
@@ -30,7 +30,8 @@ const READY = 0.55; // from here in the moon stretch the solved cube is centred 
 // burst: shared { value: 0..1, face } object, tweened by the project view.
 // onFaceClick(faceIndex, {x, y}) returns true if that face opened something.
 // onLabel(faceIndex | null, {x, y} | null) asks the page to show or hide the face's title sticker.
-export function createCube({ hitEl, camera, isPhone, burst, onFaceClick, onLabel }) {
+// onSound(name) is optional: 'turn' for each layer turn of the solve, 'solved' when it finishes.
+export function createCube({ hitEl, camera, isPhone, burst, onFaceClick, onLabel, onSound }) {
   // spin (drag rotation, world axes) > pose (scroll-driven tilt) > cubies
   const spin = new THREE.Group();
   const pose = new THREE.Group();
@@ -172,13 +173,18 @@ export function createCube({ hitEl, camera, isPhone, burst, onFaceClick, onLabel
     duration: PLAY_SECONDS,
     ease: 'none',
     paused: true,
-    onComplete: () => cheerTween.restart(), // only fires when it finishes going forward
+    // Only fires when it finishes going forward.
+    onComplete: () => {
+      cheerTween.restart();
+      onSound?.('solved');
+    },
   });
   let released = false;
 
   let inHold = false;
   let live = false;
   let bobAmount = 0;
+  let lastTurn = -1; // which move of the solve is playing, for the sound
   const toCamera = new THREE.Vector3();
   const worldQuat = new THREE.Quaternion();
   const faceDir = new THREE.Vector3();
@@ -209,7 +215,14 @@ export function createCube({ hitEl, camera, isPhone, burst, onFaceClick, onLabel
     if (c > 0 && c < 1) pose.rotateY(Math.PI * 2 * (1 - (1 - c) ** 3));
 
     // The solve: a pure function of the release value.
-    poseCubies(states, (m - SOLVE[0]) / (SOLVE[1] - SOLVE[0]), cubies);
+    const solve = (m - SOLVE[0]) / (SOLVE[1] - SOLVE[0]);
+    poseCubies(states, solve, cubies);
+    // A clack as each new layer starts to turn (only while solving, not while rewinding).
+    const turn = solve > 0 && solve < 1 ? Math.floor(solve * SCRAMBLE.length) : -1;
+    if (turn !== lastTurn) {
+      lastTurn = turn;
+      if (turn >= 0 && released) onSound?.('turn');
+    }
 
     // The burst sits on top of the solved pose.
     const b = burst.value;
