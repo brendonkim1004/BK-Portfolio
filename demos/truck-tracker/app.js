@@ -14,17 +14,18 @@ import { supabase, resetDemo } from './fakeData.js';
 import { Perm } from './permissions.js';
 
 // ============ Production Steps (names only; time is per-model total via getTotalDays) ============
+// Demo: the longer step names are shortened to one or two words so the timeline reads cleanly.
 const STEP_NAMES = [
   'Prep Chassis',
   'Prep Pump',
-  'Mounting Pump & Chassis',
-  'Welding Pump & Chassis',
-  'Electrical Check - 1st',
-  '1st Testing (Before Sandblasting)',
+  'Mounting',
+  'Welding',
+  'Electrical Check',
+  'First Testing',
   'Sandblasting',
   'Painting',
-  'Final Assembly + Paint Decal',
-  'Final Electrical Testing',
+  'Final Assembly',
+  'Final Electrical',
   'Final Testing',
   'Pre Delivery',
 ];
