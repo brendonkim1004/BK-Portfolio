@@ -26,6 +26,33 @@ const SYMBOLS = '#%&/\\<>[]{}=+*?!01XZNK'; // what a letter flickers through
 
 let running = false;
 
+// How wide each letter really is inside the finished text, measured before the text is split.
+// Browsers tuck some letter pairs closer together (kerning), which is lost once every letter
+// sits in its own box. Measuring from the start of one letter to the start of the next keeps
+// that tucking, so the boxed letters sit exactly where the finished letters will.
+function letterWidths(el) {
+  const marks = []; // one per visible letter: where it starts and ends, and if a space follows
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  const range = document.createRange();
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    for (let i = 0; i < node.data.length; i++) {
+      if (/\s/.test(node.data[i])) {
+        if (marks.length) marks[marks.length - 1].endsWord = true;
+        continue;
+      }
+      range.setStart(node, i);
+      range.setEnd(node, i + 1);
+      const box = range.getBoundingClientRect();
+      marks.push({ left: box.left, right: box.right, top: box.top, endsWord: false });
+    }
+  }
+  return marks.map((mark, i) => {
+    const next = marks[i + 1];
+    const sameWord = next && !mark.endsWord && Math.abs(next.top - mark.top) < 1;
+    return (sameWord ? next.left : mark.right) - mark.left;
+  });
+}
+
 // sound is optional: { play(name, options) }. Safe to call again to replay the intro.
 export async function setupTextMotion({ sound } = {}) {
   if (running) return;
@@ -49,11 +76,15 @@ export async function setupTextMotion({ sound } = {}) {
   const splits = [];
   const letters = [];
   for (const { el, start, gap } of targets) {
+    const measured = letterWidths(el); // taken from the finished text, before it is split
     // Splitting by words as well keeps each word in one piece when a line wraps.
     const split = new SplitText(el, { type: 'words,chars' });
     splits.push(split);
-    // Measure every letter first, then pin the widths (measuring and writing in turns is slow).
-    const widths = split.chars.map((char) => char.getBoundingClientRect().width);
+    // Pin every letter box to its measured width (or its own width, if the counts ever differ).
+    const widths =
+      measured.length === split.chars.length
+        ? measured
+        : split.chars.map((char) => char.getBoundingClientRect().width);
     split.chars.forEach((char, i) => {
       char.style.width = `${widths[i]}px`;
       char.style.textAlign = 'center';
@@ -73,6 +104,7 @@ export async function setupTextMotion({ sound } = {}) {
       if (t < 0) continue;
       if (t >= SCRAMBLE) {
         letter.el.textContent = letter.real;
+        letter.el.style.textAlign = 'left'; // the real letter starts exactly where it will end up
         letter.el.style.opacity = '1';
         letter.done = true;
         // One click per letter, but only while the name is actually on screen.
