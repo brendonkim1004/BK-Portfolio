@@ -11,6 +11,8 @@ import { createFaceLabel } from './ui/faceLabel.js';
 import { createFaceButtons } from './ui/faceButtons.js';
 import { createProjectView } from './ui/projectView.js';
 import { createListView } from './ui/listView.js';
+import { createTimelineView } from './ui/timelineView.js';
+import { timeline } from './data/timeline.js';
 import { createStage } from './scene/stage.js';
 import { createWorld } from './scene/world.js';
 import { FACES } from './scene/cube/model.js';
@@ -130,6 +132,21 @@ const list = createListView({
   },
 });
 document.querySelector('#view-list').addEventListener('click', list.open);
+
+// ---- career timeline popup ----
+const timelineView = createTimelineView({
+  stops: timeline,
+  sound,
+  onOpen: () => {
+    lenis.stop();
+    setPageInert(true);
+  },
+  onClose: () => {
+    lenis.start();
+    setPageInert(false);
+  },
+});
+document.querySelector('#view-timeline').addEventListener('click', timelineView.open);
 
 // Without 3D there is no cube to skip to, so the sticker opens the list instead.
 document.querySelector('#skip-to-work').addEventListener('click', () => (world ? scrollToWork() : list.open()));

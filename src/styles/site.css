@@ -105,6 +105,13 @@ main > section {
 
 html.on-moon .corner { color: var(--ink); }
 #view-list { --marker: var(--face-blue); }
+/* The timeline link comes first and is bigger than the others. */
+#view-timeline {
+  --marker: var(--face-green);
+  margin-bottom: 0.25rem;
+  font-size: 1.5rem;
+}
+#view-timeline::before { width: 1.2rem; height: 1.2rem; border-width: 3px; border-radius: 5px; }
 
 /* The sound switch: its square is hollow while sound is off and red while it is on. */
 #sound-toggle { --marker: transparent; }
@@ -594,6 +601,148 @@ html.on-moon .corner { color: var(--ink); }
   font-size: 0.9375rem;
   font-weight: 700;
   max-width: 56rem;
+}
+
+/* ---- career timeline popup ---- */
+.timeline-view {
+  position: fixed;
+  inset: 0;
+  z-index: 8;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  cursor: auto;
+  background: rgba(10, 13, 34, 0.72);
+}
+.timeline-view[hidden] { display: none; }
+
+.tl-card {
+  position: relative;
+  width: min(100%, 60rem);
+  max-height: calc(100svh - 2rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1.6rem 2rem 2.4rem;
+  color: var(--ink);
+  background: var(--cream);
+  border: 4px solid var(--outline);
+  border-radius: 30px 36px 28px 34px;
+  box-shadow: 10px 10px 0 var(--outline);
+}
+.tl-close { --marker: var(--face-red); position: absolute; top: 1rem; right: 1.2rem; }
+.tl-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.75rem, 3.4vw, 2.5rem);
+  line-height: 1.1;
+}
+
+/* The scene. The space at the top is headroom for the student. */
+.tl-scene { position: relative; padding-top: 6.5rem; }
+.tl-stops {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tl-stop { display: flex; flex-direction: column; align-items: center; gap: 1.5rem; min-width: 0; }
+
+/* The dotted path, with a solid part that grows as he walks. */
+.tl-track {
+  position: absolute;
+  height: 6px;
+  margin-top: -3px;
+  background: radial-gradient(circle, var(--outline) 2.4px, transparent 2.9px) 0 0 / 14px 6px repeat-x;
+}
+.tl-track.is-downward {
+  width: 6px;
+  margin: 0 0 0 -3px;
+  background: radial-gradient(circle, var(--outline) 2.4px, transparent 2.9px) 0 0 / 6px 14px repeat-y;
+}
+.tl-track-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--outline);
+  border-radius: 3px;
+  transform-origin: left top;
+}
+
+.tl-dot {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  width: 1.75rem;
+  height: 1.75rem;
+  background: var(--cream);
+  border: 4px solid var(--outline);
+  border-radius: 50%;
+  overflow: hidden;
+}
+.tl-dot-fill { position: absolute; inset: 0; border-radius: 50%; }
+
+/* Each stop's speech bubble, with a small tail pointing back at its dot. */
+.tl-bubble {
+  position: relative;
+  width: 100%;
+  padding: 1.1rem 1rem 1.2rem;
+  text-align: center;
+  background: #fff;
+  border: 4px solid var(--outline);
+  border-radius: 26px 22px 28px 24px;
+  transform-origin: 50% 0;
+}
+.tl-bubble::before {
+  content: "";
+  position: absolute;
+  top: -0.7rem;
+  left: 50%;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-left: -0.55rem;
+  background: inherit;
+  border: 4px solid var(--outline);
+  border-right: 0;
+  border-bottom: 0;
+  transform: rotate(45deg);
+}
+.tl-stop.is-now .tl-bubble { background: var(--face-yellow); }
+.tl-bubble .pixel-art { display: block; width: 5rem; height: auto; margin: 0 auto 0.8rem; }
+.tl-bubble p { margin: 0; }
+.tl-role { font-family: var(--font-display); font-weight: 600; font-size: 1.25rem; line-height: 1.15; }
+.tl-place { margin-top: 0.3rem !important; font-weight: 700; }
+.tl-dates { margin-top: 0.15rem !important; font-size: 0.9375rem; }
+/* The pixel student. JavaScript moves this box; the inner one bobs. */
+.tl-walker { position: absolute; z-index: 2; top: 0; left: 0; width: 4rem; height: 5rem; pointer-events: none; }
+.tl-walker-body { position: absolute; inset: 0; }
+.tl-walker .pixel-art { position: absolute; inset: 0; width: 100%; height: 100%; }
+.tl-walker .pixel-studentB { opacity: 0; }
+.tl-walker.is-walking .pixel-studentA { animation: tl-step-a 0.34s steps(1) infinite; }
+.tl-walker.is-walking .pixel-studentB { animation: tl-step-b 0.34s steps(1) infinite; }
+.tl-walker.is-walking .tl-walker-body { animation: tl-bob 0.34s steps(2) infinite; }
+.tl-walker.is-home .tl-walker-body { animation: tl-hop 1.1s ease-in-out infinite; }
+@keyframes tl-step-a { 0% { opacity: 1; } 50% { opacity: 0; } }
+@keyframes tl-step-b { 0% { opacity: 0; } 50% { opacity: 1; } }
+@keyframes tl-bob { from { transform: translateY(0); } to { transform: translateY(-4px); } }
+@keyframes tl-hop { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-7px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .tl-walker .pixel-art, .tl-walker-body { animation: none !important; }
+}
+
+/* Phones: the stops stack and the path runs down the left side. */
+@media (max-width: 720px) {
+  .tl-card { padding: 1.2rem 1.1rem 1.6rem; }
+  .tl-scene { padding-top: 3rem; }
+  .tl-stops { grid-template-columns: 1fr; gap: 2.5rem; }
+  .tl-stop { flex-direction: row; align-items: center; gap: 0.9rem; }
+  .tl-stop .tl-dot { margin: 0 1.1rem; }
+  .tl-bubble { text-align: left; transform-origin: 0 50%; padding: 0.9rem 1rem 1rem; }
+  .tl-bubble::before { top: 50%; left: -0.7rem; margin: -0.55rem 0 0; border: 4px solid var(--outline); border-top: 0; border-right: 0; }
+  .tl-bubble .pixel-art { width: 3.5rem; margin: 0 0 0.6rem; }
+  .tl-walker { width: 3rem; height: 3.75rem; }
 }
 
 /* ---- list view ---- */
