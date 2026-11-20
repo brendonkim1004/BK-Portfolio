@@ -33,12 +33,12 @@ const burst = { value: 0 }; // 0 = whole cube, 1 = fully burst; tweened by the p
 const pageParts = [document.querySelector('main'), document.querySelector('.corner')];
 const setPageInert = (inert) => pageParts.forEach((el) => (el.inert = inert));
 
-// ---- face title sticker ----
-const label = createFaceLabel(document.querySelector('#face-label'));
-function showLabel(index, point) {
+// ---- face preview card (pops up above the cube) ----
+const label = createFaceLabel(document.querySelector('#face-label'), { isPhone });
+function showLabel(index) {
   if (index === null) return label.hide();
   const { color, project } = faces[index];
-  label.show(project ? project.title : 'Coming soon', palette.faces[color], point);
+  label.show(palette.faces[color], project);
 }
 
 // ---- project view ----
@@ -48,6 +48,7 @@ const view = createProjectView({
     lenis.stop();
     setPageInert(true);
     label.hide();
+    sideLabel.classList.remove('is-on');
   },
   onClosed: () => {
     lenis.start();
@@ -118,7 +119,7 @@ createFaceButtons(document.querySelector('#face-buttons'), faces, {
   onFocus: (index) => {
     if (world && !world.cube.isInHold()) scrollToWork();
     world?.cube.focusFace(index);
-    showLabel(index, null);
+    showLabel(index);
   },
   onBlur: () => {
     world?.cube.focusFace(null);
@@ -141,6 +142,15 @@ window.addEventListener('pointermove', (e) => {
   cursor.y = -((e.clientY / window.innerHeight) * 2 - 1);
 });
 
+// "Coming Soon" sticker for the two side puzzles. Only its transform changes as it follows them.
+const sideLabel = document.querySelector('#side-label');
+function showSideLabel(point) {
+  if (point) {
+    sideLabel.style.transform = `translate3d(${point.x}px, ${point.y}px, 0) translate(-50%, -100%) rotate(-3deg)`;
+  }
+  sideLabel.classList.toggle('is-on', point !== null);
+}
+
 try {
   const stage = createStage(document.querySelector('#scene'));
   world = createWorld(stage, {
@@ -148,6 +158,7 @@ try {
     isPhone,
     burst,
     onLabel: showLabel,
+    onSideLabel: showSideLabel,
     // Returns true if the face opened a project; "Coming soon" faces just give a small nudge.
     onFaceClick: (index, point) => {
       const { project } = faces[index];

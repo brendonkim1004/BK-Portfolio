@@ -1,6 +1,7 @@
-// The Rubik's cube: wedged in the crater, wiggles free, lifts, solves with scroll,
-// then can be dragged, hovered and clicked during the hold.
+// The Rubik's cube: wedged in the crater until the visitor scrolls down to it, then it
+// wiggles free, lifts and solves on its own. Once solved it can be dragged, hovered and clicked.
 import * as THREE from 'three';
+import gsap from 'gsap';
 import { FACES, buildCubies } from './model.js';
 import { HOME, buildStates, poseCubies } from './solve.js';
 import { createBurstFx } from './burst.js';
@@ -11,10 +12,18 @@ const smooth = (a, b, x) => {
   return t * t * (3 - 2 * t);
 };
 
-// Where each part of the moon stretch (0..1) happens.
-const WIGGLE = [0, 0.12, 0.3, 0.4]; // fades in, then out as the cube lets go
-const LIFT = [0.3, 0.62];
-const SOLVE = [0.45, 0.97];
+// The release plays by itself once scroll reaches the cube; the visitor does not have to keep scrolling.
+const TRIGGER = 0.3; // how far into the moon stretch (0..1) the cube starts to move
+const RESET = 0.1; // scrolling back above this puts the cube back in the crater
+const PLAY_SECONDS = 5.6; // wiggle + lift + solve
+const REWIND_SPEED = 3; // going back is quicker than the show
+
+// Where each part happens inside the release animation (0..1).
+const WIGGLE = [0, 0.08, 0.26, 0.36]; // fades in, then out as the cube lets go
+const LIFT = [0.26, 0.6];
+const SOLVE = [0.42, 1];
+const GROW = [0.5, 1];
+const READY = 0.55; // from here in the moon stretch the solved cube is centred enough to play with
 
 // hitEl: transparent element over the cube that receives pointer input during the hold.
 // burst: shared { value: 0..1, face } object, tweened by the project view.
@@ -146,6 +155,12 @@ export function createCube({ hitEl, camera, isPhone, burst, onFaceClick, onLabel
     if (!dragging && hovered !== null) setHovered(null);
   });
 
+  // One number, 0 (stuck and scrambled) to 1 (floating and solved), played over time.
+  // It still drives everything, so rewinding it un-solves exactly.
+  const release = { value: 0 };
+  const releaseTween = gsap.to(release, { value: 1, duration: PLAY_SECONDS, ease: 'none', paused: true });
+  let released = false;
+
   let inHold = false;
   let live = false;
   const toCamera = new THREE.Vector3();
@@ -153,17 +168,27 @@ export function createCube({ hitEl, camera, isPhone, burst, onFaceClick, onLabel
   const faceDir = new THREE.Vector3();
 
   // journey = { descent, moon, outro } each 0..1; restY/liftY are world heights.
-  spin.update = (time, dt, journey, { restY, liftY, scale }) => {
-    const m = journey.moon;
+  // grow is how much bigger the cube ends up once solved.
+  spin.update = (time, dt, journey, { restY, liftY, scale, grow = 1 }) => {
+    // Start the show when scroll arrives at the cube; rewind it if the visitor goes back up.
+    if (!released && journey.moon >= TRIGGER) {
+      released = true;
+      releaseTween.timeScale(1).play();
+    } else if (released && journey.moon < RESET) {
+      released = false;
+      releaseTween.timeScale(REWIND_SPEED).reverse();
+    }
+
+    const m = release.value;
     const rise = smooth(LIFT[0], LIFT[1], m);
 
     // Wiggle while still stuck, then rise and turn to the display pose.
     const wiggle =
-      Math.sin(m * 70) * 0.07 * smooth(WIGGLE[0], WIGGLE[1], m) * (1 - smooth(WIGGLE[2], WIGGLE[3], m));
+      Math.sin(m * 60) * 0.07 * smooth(WIGGLE[0], WIGGLE[1], m) * (1 - smooth(WIGGLE[2], WIGGLE[3], m));
     pose.quaternion.slerpQuaternions(wedged, display, rise);
     pose.rotateZ(wiggle);
 
-    // The solve: a pure function of scroll.
+    // The solve: a pure function of the release value.
     poseCubies(states, (m - SOLVE[0]) / (SOLVE[1] - SOLVE[0]), cubies);
 
     // The burst sits on top of the solved pose.
@@ -177,7 +202,8 @@ export function createCube({ hitEl, camera, isPhone, burst, onFaceClick, onLabel
     }
     fx.setProgress(b);
 
-    const nowInHold = m > 0.995 && journey.outro < 0.005;
+    // Playable once it has finished solving and is near the middle of the screen.
+    const nowInHold = m === 1 && journey.moon > READY && journey.outro < 0.005;
     if (nowInHold !== inHold) {
       inHold = nowInHold;
       if (!inHold) {
@@ -246,7 +272,9 @@ export function createCube({ hitEl, camera, isPhone, burst, onFaceClick, onLabel
     pulse = Math.max(0, pulse - dt * 3);
     const bob = inHold ? Math.sin(time * 1.1) * 0.08 : 0;
     spin.position.y = restY + (liftY - restY) * rise + bob;
-    spin.scale.setScalar(scale * (1 + Math.sin(pulse * Math.PI) * 0.06));
+    // It swells to its full size while it solves, so it arrives in the centre big and finished.
+    const size = scale * (1 + (grow - 1) * smooth(GROW[0], GROW[1], m));
+    spin.scale.setScalar(size * (1 + Math.sin(pulse * Math.PI) * 0.06));
   };
 
   // Keyboard: bring a face round to the front (null lets go).
@@ -266,6 +294,9 @@ export function createCube({ hitEl, camera, isPhone, burst, onFaceClick, onLabel
   spin.setBurstFace = (index) => fx.setColor(palette.faces[FACES[index].color]);
 
   spin.isInHold = () => inHold;
+
+  // 0..1 progress of the release, for things that move with it (the dust puff).
+  spin.releaseProgress = () => release.value;
 
   return spin;
 }

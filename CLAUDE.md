@@ -25,6 +25,11 @@ This file was written on 2026-11-19 as a handoff from an earlier session that ra
 - **Name:** shown as "Brendon Kim", with no "Hi, I'm" or other greeting.
 - **Type:** Fredoka (weight 600) for display, Nunito for body. Self-hosted through `@fontsource`.
 - **Look:** dark, ink-navy space with cream text and chunky saturated cube colours. All colours live in `src/styles/palette.js`.
+- **The cube frees and solves itself** (Brendon, 2026-11-19): once scroll reaches the cube it wiggles, lifts and solves on a timer (about 5.6 s), with no further scrolling needed. Scrolling back up above the moon rewinds it into the crater. This replaces the design doc's scroll-driven solve. Timings are the constants at the top of `src/scene/cube/index.js`.
+- **Short descent, two notes** (Brendon, 2026-11-19): the descent is 190svh (160svh on phones) with two floating notes, so the cube is reached quickly.
+- **Face hover shows a preview card above the cube**: a small drawn sketch (`src/ui/previews.js`, chosen by each project's `preview` field), the title and the summary. Project titles are written in Title Case.
+- **Two placeholder puzzles beside the cube** (Brendon, 2026-11-19): a Pyraminx on the left and a Megaminx on the right, part buried in the moon (`src/scene/objects/puzzles.js`, placed in `world.js`). They only show "Coming Soon" on hover for now; Brendon plans to put more projects in them later.
+- **The solved cube is bigger**: it grows to 1.3x on wide screens (1.1x on phones) while it solves (`cubeGrow` in `world.js`).
 - **After the solve, scroll never locks.** The cube holds for about 1.5 screens while drag spins it, then the page carries on to the outro. Stopping just short of the cube settles gently onto it.
 - **All 3D objects are built in code** (no Blender models). Each object is its own module so one could be swapped for a model later.
 - **Launch projects (4 of 6 faces):** truck production tracker, inventory + barcode system, Concord online store, Concord pre-owned pumps store. Other faces say "Coming soon".
@@ -37,7 +42,7 @@ This file was written on 2026-11-19 as a handoff from an earlier session that ra
 - **Milestone 1:** Vite setup, palette with contrast tests, and two decision pages (`/type-test.html`, `/storyboard.html`). The decision pages are throwaway and come out before launch.
 - **Milestone 2:** the real page (`index.html`): About screen, space objects, scroll-driven descent, the moon, a grey stand-in box that wiggles free, lifts, and can be dragged during the hold, the outro, and the "skip to the work" sticker. Checked in headless Chrome at desktop and phone sizes; not yet checked on a real phone or approved by Brendon.
 
-- **Visuals for Milestones 3 to 5** (built in one pass on 2026-11-19, at Brendon's request to do all visuals first and details after): the real 27-piece cube with the scroll-driven solve and dust puff, drag, face hover with title stickers, keyboard face buttons, the burst (cubies, shards, scan lines, HUD label, colour flood), the project page layout, `#project/<id>` links, and the "view as list" page. Checked in headless Chrome at desktop and phone sizes only. **Still placeholder:** every line of project text except the titles, the demo window (empty frame), and the contact links.
+- **Visuals for Milestones 3 to 5** (built in one pass on 2026-11-19, at Brendon's request to do all visuals first and details after): the real 27-piece cube with its solve and dust puff, drag, face hover with title stickers, keyboard face buttons, the burst (cubies, shards, scan lines, HUD label, colour flood), the project page layout, `#project/<id>` links, and the "view as list" page. Checked in headless Chrome at desktop and phone sizes only. **Still placeholder:** every line of project text except the titles, the demo window (empty frame), and the contact links.
 
 Where things live:
 
@@ -65,7 +70,7 @@ tests/                  palette contrast and build checks
 
 ## What is next
 
-1. **Brendon's feedback on the visuals:** the wording, whether the dark outlines need to be more visible against the navy, whether the snap onto the cube feels helpful or sticky, the solve speed (the moon stretch is now 240svh), and the burst and project page look.
+1. **Brendon's feedback on the visuals:** the wording, whether the dark outlines need to be more visible against the navy, whether the snap onto the cube feels helpful or sticky, the speed of the automatic solve, and the burst and project page look.
 2. **Content, one item at a time:** each project's one-line problem, what was built, Brendon's role, tech, and result; then contact links (email, GitHub, LinkedIn, resume). Before building each demo, ask which screens to include.
 3. Milestone 6 (reduced motion, phone tuning, performance, loader measurement) and Milestone 7 (launch) as listed in the design doc.
 

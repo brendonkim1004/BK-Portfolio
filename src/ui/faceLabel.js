@@ -1,15 +1,40 @@
-// The title sticker shown for a cube face: it follows the mouse on hover, or sits
-// just above the cube on touch screens and for keyboard focus.
-export function createFaceLabel(el) {
+// The preview card for a cube face. It pops up just above the cube (CSS places it there)
+// with a small sketch of the project, its title and its one-line summary.
+// Faces with no project get a plain "Coming Soon" card.
+import { previewSketch } from './previews.js';
+
+export function createFaceLabel(el, { isPhone = false } = {}) {
+  const card = document.createElement('div');
+  card.className = 'face-card';
+  const thumb = document.createElement('div');
+  thumb.className = 'face-card-thumb';
+  const text = document.createElement('div');
+  text.className = 'face-card-text';
+  const title = document.createElement('p');
+  title.className = 'face-card-title';
+  const summary = document.createElement('p');
+  summary.className = 'face-card-summary';
+  const hint = document.createElement('p');
+  hint.className = 'face-card-hint';
+  hint.textContent = isPhone ? 'tap to open' : 'click to open'; // draft wording
+  text.append(title, summary, hint);
+  card.append(thumb, text);
+  el.append(card);
+
+  let showing = null; // what the card currently holds, so repeat calls while hovering cost nothing
+
   return {
-    // point is { x, y } in screen pixels, or null for the fixed spot above the cube.
-    show(text, hex, point) {
-      el.textContent = text;
-      el.style.backgroundColor = hex;
-      const x = point ? point.x : window.innerWidth / 2;
-      const y = point ? point.y : window.innerHeight * 0.2;
-      // Only transform changes, so moving it is cheap.
-      el.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, ${point ? '-170%' : '-50%'}) rotate(-3deg)`;
+    // hex: the face colour. project: the face's project, or null for "Coming Soon".
+    show(hex, project) {
+      const key = project ? project.id : `empty-${hex}`;
+      if (showing !== key) {
+        showing = key;
+        card.style.setProperty('--card-theme', hex);
+        card.classList.toggle('is-empty', !project);
+        title.textContent = project ? project.title : 'Coming Soon';
+        summary.textContent = project ? project.summary : '';
+        thumb.innerHTML = project ? previewSketch(project.preview) : '';
+      }
       el.classList.add('is-on');
     },
     hide() {

@@ -1,9 +1,11 @@
 // Builds the whole scene and moves the camera through it.
 // Everything on screen is a pure function of the scroll "journey" values plus time for idle drift.
+import * as THREE from 'three';
 import { palette } from '../styles/palette.js';
 import { createRingedPlanet, createSmallPlanet } from './objects/planets.js';
 import { createSatellite, createAsteroids, createComet } from './objects/spaceJunk.js';
-import { createMoon } from './objects/moon.js';
+import { createMoon, MOON_RADIUS } from './objects/moon.js';
+import { createPyraminx, createMegaminx } from './objects/puzzles.js';
 import { createStars } from './objects/stars.js';
 import { createDust } from './objects/dust.js';
 import { createCube } from './cube/index.js';
@@ -19,7 +21,8 @@ const easeOut = (t) => 1 - (1 - t) ** 3;
 const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
 
 // cubeOptions are passed straight to the cube: { burst, onFaceClick, onLabel }.
-export function createWorld(stage, { hitEl, isPhone, ...cubeOptions }) {
+// onSideLabel({ x, y } | null) asks the page to show "Coming Soon" above a side puzzle, or hide it.
+export function createWorld(stage, { hitEl, isPhone, onSideLabel, ...cubeOptions }) {
   const { scene, camera } = stage;
   const drifting = []; // things with update(time)
   const placed = []; // things whose x shrinks on narrow screens
@@ -87,6 +90,38 @@ export function createWorld(stage, { hitEl, isPhone, ...cubeOptions }) {
   const cube = createCube({ hitEl, camera, isPhone, ...cubeOptions });
   scene.add(cube);
   let cubeScale = 1;
+  let cubeGrow = 1.3; // how much bigger the cube gets once it is solved and centred
+
+  // ---- the two placeholder puzzles, stuck in the moon either side of the cube ----
+  // rest: how far the centre sits above the ground (they are part buried). top: where the label goes.
+  const SIDE_Z = -1;
+  const sides = [
+    { object: createPyraminx(), side: -1, rest: 0.4, top: 2.1, hover: 0 },
+    { object: createMegaminx(), side: 1, rest: 0.6, top: 1.8, hover: 0 },
+  ];
+  for (const s of sides) scene.add(s.object);
+
+  // Hover works from the mouse position; on touch a tap shows the label for a moment.
+  const ray = new THREE.Raycaster();
+  const ndc = new THREE.Vector2();
+  const labelPoint = new THREE.Vector3();
+  let mouse = null; // last mouse position in screen pixels
+  let tap = null; // a touch that has not been checked yet
+  let hoveredSide = null;
+  let tapUntil = 0;
+  window.addEventListener('pointermove', (e) => {
+    if (e.pointerType === 'mouse') mouse = { x: e.clientX, y: e.clientY };
+  });
+  window.addEventListener('pointerdown', (e) => {
+    if (e.pointerType !== 'mouse') tap = { x: e.clientX, y: e.clientY };
+  });
+  document.documentElement.addEventListener('pointerleave', () => (mouse = null));
+
+  function sideUnder(point) {
+    ndc.set((point.x / window.innerWidth) * 2 - 1, -((point.y / window.innerHeight) * 2 - 1));
+    ray.setFromCamera(ndc, camera);
+    return sides.find((s) => ray.intersectObject(s.object, true).length > 0) ?? null;
+  }
 
   stage.onResize((aspect) => {
     // Wide screens keep the full layout; tall phone screens squeeze it toward the centre.
@@ -99,6 +134,18 @@ export function createWorld(stage, { hitEl, isPhone, ...cubeOptions }) {
       object.scale.setScalar(object.userData.baseScale * (0.7 + 0.3 * k));
     }
     cubeScale = 0.72 + 0.28 * k;
+    const wide = (k - 0.42) / 0.58; // 0 on phone-shaped screens, 1 on wide ones
+    cubeGrow = 1.1 + 0.2 * wide;
+
+    // Side puzzles sit near the edge of the screen, resting on the curve of the moon.
+    const halfWidth = Math.tan((camera.fov * Math.PI) / 360) * (CAMERA_Z - SIDE_Z) * aspect;
+    const x = Math.min(6.8, Math.max(1.8, halfWidth * 0.66));
+    const scale = 0.5 + 0.5 * wide;
+    const ground = MOON_TOP - MOON_RADIUS + Math.sqrt(MOON_RADIUS ** 2 - x ** 2 - SIDE_Z ** 2);
+    for (const s of sides) {
+      s.object.position.set(s.side * x, ground + s.rest * scale, SIDE_Z);
+      s.object.scale.setScalar(scale);
+    }
   });
 
   const pointer = { x: 0, y: 0 }; // smoothed cursor offset, -1..1
@@ -118,8 +165,48 @@ export function createWorld(stage, { hitEl, isPhone, ...cubeOptions }) {
     camera.lookAt(0, camY, 0);
 
     for (const object of drifting) object.update(time);
-    dust.setProgress(journey.moon);
-    cube.update(time, dt, journey, { restY: MOON_TOP + 0.35, liftY: ARRIVE + 0.2, scale: cubeScale });
+    cube.update(time, dt, journey, {
+      restY: MOON_TOP + 0.35,
+      liftY: ARRIVE + 0.2,
+      scale: cubeScale,
+      grow: cubeGrow,
+    });
+    dust.setProgress(cube.releaseProgress());
+
+    // Side puzzles: which one (if any) is being pointed at, while the moon is on screen.
+    const nearMoon = journey.moon > 0.25 && journey.outro < 0.6;
+    let nowHovered = null;
+    if (nearMoon) {
+      if (tap) {
+        nowHovered = sideUnder(tap);
+        tapUntil = nowHovered ? time + 1.8 : 0;
+      } else if (time < tapUntil) {
+        nowHovered = hoveredSide;
+      } else if (mouse) {
+        nowHovered = sideUnder(mouse);
+      }
+    }
+    tap = null;
+    if (nowHovered !== hoveredSide) {
+      hoveredSide = nowHovered;
+      if (!hoveredSide) onSideLabel?.(null);
+    }
+    if (hoveredSide) {
+      // Follow the puzzle on screen, since the camera moves with scroll and the cursor.
+      const { object, top } = hoveredSide;
+      labelPoint.copy(object.position);
+      labelPoint.y += top * object.scale.x;
+      labelPoint.project(camera);
+      onSideLabel?.({
+        x: (labelPoint.x * 0.5 + 0.5) * window.innerWidth,
+        y: (-labelPoint.y * 0.5 + 0.5) * window.innerHeight,
+      });
+    }
+    const ease = 1 - Math.exp(-10 * dt);
+    for (const s of sides) {
+      s.hover += ((s === hoveredSide ? 1 : 0) - s.hover) * ease;
+      s.object.update(time, s.hover);
+    }
   }
 
   return { update, cube };

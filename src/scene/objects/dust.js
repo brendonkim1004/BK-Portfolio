@@ -1,13 +1,13 @@
 // The dust puff kicked up when the cube pulls free of the crater.
-// A ring of soft blobs whose size and position depend only on scroll progress,
-// so scrolling back plays it in reverse.
+// A ring of soft blobs whose size and position depend only on the cube's release progress,
+// so rewinding the release plays the puff in reverse.
 import * as THREE from 'three';
 import { palette } from '../../styles/palette.js';
 import { toon } from '../materials.js';
 
 const clamp01 = (x) => Math.min(1, Math.max(0, x));
 
-export function createDust({ count = 11, start = 0.27, length = 0.34 } = {}) {
+export function createDust({ count = 11, start = 0.23, length = 0.32 } = {}) {
   const group = new THREE.Group();
   const geo = new THREE.IcosahedronGeometry(1, 1);
   const mat = toon(palette.dust);
@@ -33,7 +33,7 @@ export function createDust({ count = 11, start = 0.27, length = 0.34 } = {}) {
     });
   }
 
-  // m is the moon stretch's progress, 0..1.
+  // m is the cube's release progress, 0..1.
   group.setProgress = (m) => {
     for (const p of puffs) {
       const u = clamp01((m - start - p.delay) / length);
