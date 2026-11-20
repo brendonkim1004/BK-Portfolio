@@ -6,7 +6,8 @@
 // links (optional): buttons shown at the bottom of the project page, for example
 //   links: [{ label: 'Read the case study', url: 'https://...' }],
 // The truck tracker and inventory system have none: their code stays private.
-// liveUrl (the two stores): adds a "Visit the live site" button, so they need no links entry.
+// liveUrl (the two stores): the real site is shown inside the project page's window, with a
+// "Visit the full site" link under it.
 //
 // The wording is Brendon's own.
 // Nothing here may ever contain real Concord data.
@@ -66,7 +67,7 @@ export const projects = [
     tech: ["JavaScript", "HTML/CSS", "Supabase", "Resend", "Vercel"],
     result: `Increased sales by 250% and made site useable on all devices with no bugs`,
     type: "public-site",
-    liveUrl: "https://preownedconcretepumps.com/",
+    liveUrl: "https://www.preownedconcretepumps.com/",
   },
 ];
 

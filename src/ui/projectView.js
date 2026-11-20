@@ -85,26 +85,40 @@ export function createProjectView({ burst, onOpen, onClosed, onCovered, onReques
     for (const field of ['problem', 'result', 'built', 'role']) {
       view.querySelector(`[data-field="${field}"]`).textContent = project[field];
     }
-    // The demo window: a working copy of the app in its own frame (project.prototype is its
-    // address), or a placeholder line for projects that do not have one yet.
+    // The window shows a working page in its own frame: either the fake-data demo
+    // (project.prototype) or the real public site (project.liveUrl). Projects with neither
+    // get a placeholder line. The link under it opens the same page in a new tab.
     const screen = view.querySelector('.demo-screen');
     const open = view.querySelector('.demo-open');
+    const note = view.querySelector('.demo-note');
+    const address = project.prototype ?? project.liveUrl ?? null;
     screen.querySelector('iframe')?.remove();
-    screen.classList.toggle('has-demo', Boolean(project.prototype));
-    open.hidden = !project.prototype;
-    if (project.prototype) {
+    screen.classList.toggle('has-demo', Boolean(address));
+    open.hidden = !address;
+    if (address) {
       const frame = document.createElement('iframe');
-      frame.src = project.prototype;
-      frame.title = `${project.title}: working demo with sample data`;
+      frame.src = address;
+      if (project.prototype) {
+        frame.title = `${project.title}: working demo with sample data`;
+        open.textContent = 'Open full screen';
+        note.textContent = 'Demo with sample data. Not real company information.';
+      } else {
+        frame.title = `${project.title}: the live site`;
+        // The real site may run its scripts and forms, but may not take over this page.
+        frame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups');
+        frame.loading = 'lazy';
+        open.textContent = 'Visit the full site';
+        note.textContent = 'This is the real, live site.';
+      }
       screen.append(frame);
-      open.href = project.prototype;
+      open.href = address;
     } else {
-      screen.querySelector('p').textContent =
-        project.type === 'public-site' ? 'A live link or screenshots go here.' : 'The clickable demo goes here.';
+      screen.querySelector('p').textContent = 'The clickable demo goes here.';
+      note.textContent = '';
     }
 
-    // Links for this project (set in src/data/projects.js), plus the live site if it has one.
-    const links = [...(project.liveUrl ? [{ label: 'Visit the live site', url: project.liveUrl }] : []), ...(project.links ?? [])];
+    // Extra links for this project (set in src/data/projects.js).
+    const links = project.links ?? [];
     view.querySelector('.pv-links').replaceChildren(
       ...links.map(({ label, url }) => {
         const item = document.createElement('li');
