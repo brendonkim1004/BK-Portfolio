@@ -1,0 +1,147 @@
+/* Storyboard page only. */
+.board {
+  list-style: none;
+  margin: 0 0 3rem 1.25rem;
+  padding: 0 0 0 1.75rem;
+  border-left: 3px dashed var(--moon-shade);
+}
+
+.board-item {
+  position: relative;
+  margin: 0 0 3rem;
+  max-width: 44rem;
+}
+
+.board-number {
+  position: absolute;
+  left: -3.2rem;
+  top: -0.4rem;
+  width: 2.6rem;
+  height: 2.6rem;
+  display: grid;
+  place-items: center;
+  background: var(--face-yellow);
+  color: #141B3C;
+  border: 3px solid var(--outline);
+  border-radius: 12px 16px 10px 14px;
+  font-family: "Fredoka", var(--font-fallback);
+  font-weight: 600;
+  font-size: 1.375rem;
+}
+
+.board-item:nth-child(odd) .board-number {
+  transform: rotate(-4deg);
+}
+
+.board-item:nth-child(even) .board-number {
+  transform: rotate(3deg);
+}
+
+.board-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+  margin: 0 0 0.6rem;
+}
+
+.board-title {
+  font-family: "Fredoka", var(--font-fallback);
+  font-weight: 600;
+  font-size: 1.5rem;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.board-scroll {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.board-panel {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 3px solid var(--outline);
+  border-radius: 20px 26px 18px 24px;
+  outline: 2px solid var(--cream);
+  outline-offset: -1px;
+  background: var(--ink-deep);
+}
+
+.board-caption {
+  margin: 0.6rem 0 0;
+  max-width: 36rem;
+}
+
+.always-on {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem;
+  margin: 0;
+}
+
+.always-on .sticker {
+  font-family: "Fredoka", var(--font-fallback);
+  font-weight: 600;
+  background: var(--cream);
+}
+
+/* SVG drawing classes: fills come from the palette variables. */
+.board-panel .ol {
+  stroke: var(--outline);
+  stroke-width: 3;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.board-panel .thin {
+  stroke-width: 2;
+}
+
+.f-ink { fill: var(--ink); }
+.f-ink-deep { fill: var(--ink-deep); }
+.f-cream { fill: var(--cream); }
+.f-moon { fill: var(--moon); }
+.f-moon-shade { fill: var(--moon-shade); }
+.f-outline { fill: var(--outline); }
+.f-red { fill: var(--face-red); }
+.f-orange { fill: var(--face-orange); }
+.f-yellow { fill: var(--face-yellow); }
+.f-green { fill: var(--face-green); }
+.f-blue { fill: var(--face-blue); }
+.f-pink { fill: var(--face-pink); }
+.f-none { fill: none; }
+
+.s-cream {
+  stroke: var(--cream);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+.svg-label {
+  font-family: "Fredoka", var(--font-fallback);
+  font-weight: 600;
+  font-size: 11px;
+  fill: #141B3C;
+}
+
+@media (max-width: 30rem) {
+  .board {
+    margin-left: 1rem;
+    padding-left: 1.5rem;
+  }
+
+  .board-number {
+    left: -2.9rem;
+    width: 2.3rem;
+    height: 2.3rem;
+    font-size: 1.125rem;
+  }
+}
