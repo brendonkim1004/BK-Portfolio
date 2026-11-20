@@ -92,14 +92,18 @@ export function createWorld(stage, { hitEl, isPhone, onSideLabel, ...cubeOptions
   let cubeScale = 1;
   let cubeGrow = 1.3; // how much bigger the cube gets once it is solved and centred
 
-  // ---- the two placeholder puzzles, stuck in the moon either side of the cube ----
-  // rest: how far the centre sits above the ground (they are part buried). top: where the label goes.
+  // ---- the two placeholder puzzles, each stuck in its own crater either side of the cube ----
+  // rest: how far the centre sits above the ground (they are part buried, and rise clear on hover).
+  // top: where the label goes. craterSize: radius of the crater it sits in.
   const SIDE_Z = -1;
   const sides = [
-    { object: createPyraminx(), side: -1, rest: 0.4, top: 2.1, hover: 0 },
-    { object: createMegaminx(), side: 1, rest: 0.6, top: 1.8, hover: 0 },
+    { object: createPyraminx(), side: -1, rest: 0.4, top: 3.1, craterSize: 1.9, hover: 0 },
+    { object: createMegaminx(), side: 1, rest: 0.6, top: 2.9, craterSize: 1.55, hover: 0 },
   ];
-  for (const s of sides) scene.add(s.object);
+  for (const s of sides) {
+    scene.add(s.object);
+    s.crater = moon.addCrater(s.craterSize);
+  }
 
   // Hover works from the mouse position; on touch a tap shows the label for a moment.
   const ray = new THREE.Raycaster();
@@ -145,6 +149,9 @@ export function createWorld(stage, { hitEl, isPhone, onSideLabel, ...cubeOptions
     for (const s of sides) {
       s.object.position.set(s.side * x, ground + s.rest * scale, SIDE_Z);
       s.object.scale.setScalar(scale);
+      s.crater.place(s.side * x, SIDE_Z, scale);
+      // On narrow screens the puzzles sit inside the cube's big crater already, so they need none of their own.
+      s.crater.show(x - s.craterSize * scale > 3);
     }
   });
 

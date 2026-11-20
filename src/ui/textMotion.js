@@ -20,7 +20,7 @@ export async function setupTextMotion() {
     stagger: 0.04,
     delay: 0.15,
   });
-  gsap.from('.about-role, .about-lines p, .scroll-hint', {
+  gsap.from('.about-role, .about-school, .scroll-hint', {
     y: 18,
     opacity: 0,
     duration: 0.8,

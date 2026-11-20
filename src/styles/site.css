@@ -85,17 +85,23 @@ main > section {
   white-space: nowrap;
 }
 
-.about-role {
-  transform: rotate(-2deg);
+/* Two stickers under the name: the major, then the school. Each sits on its own line. */
+.about-role,
+.about-school {
+  display: block;
+  width: fit-content;
   transform-origin: left center;
-  background: var(--face-yellow);
-  margin: 0 0 1.5rem;
 }
 
-.about-lines p {
-  font-size: clamp(1.0625rem, 1.5vw, 1.3125rem);
-  margin: 0 0 0.5rem;
-  max-width: 30rem;
+.about-role {
+  transform: rotate(-2deg);
+  background: var(--face-yellow);
+  margin: 0 0 0.9rem;
+}
+
+.about-school {
+  transform: rotate(1deg);
+  margin: 0 0 0 0.6rem;
 }
 
 .scroll-hint {
