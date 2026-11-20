@@ -1,0 +1,265 @@
+/* The real site's styles. Text sits in normal page flow on top of one fixed canvas. */
+:root {
+  --font-display: "Fredoka", var(--font-fallback);
+  --font-body: "Nunito", var(--font-fallback);
+  --gutter: clamp(1rem, 5vw, 4.5rem);
+}
+
+body {
+  background: var(--ink-deep);
+  overflow-x: hidden;
+}
+
+#scene {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+/* Static paper grain over everything. It never animates. */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0.11;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+main {
+  position: relative;
+  z-index: 1;
+}
+
+section {
+  position: relative;
+  padding: 0 var(--gutter);
+}
+
+/* ---- sticker look, shared ---- */
+.sticker {
+  display: inline-block;
+  padding: 0.35rem 0.95rem 0.4rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.0625rem;
+  line-height: 1.2;
+  color: var(--ink);
+  background: var(--cream);
+  border: 3px solid var(--outline);
+  border-radius: 14px 18px 12px 16px;
+  box-shadow: 4px 4px 0 var(--outline);
+}
+
+/* ---- 1. About ---- */
+#about {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.about-text {
+  max-width: min(34rem, 52vw);
+}
+
+.about-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(3.25rem, 10vw, 8.5rem);
+  line-height: 0.92;
+  letter-spacing: -0.01em;
+  margin: 0 0 1.25rem;
+}
+
+.about-name .word {
+  display: block;
+  white-space: nowrap;
+}
+
+.about-role {
+  transform: rotate(-2deg);
+  transform-origin: left center;
+  background: var(--face-yellow);
+  margin: 0 0 1.5rem;
+}
+
+.about-lines p {
+  font-size: clamp(1.0625rem, 1.5vw, 1.3125rem);
+  margin: 0 0 0.5rem;
+  max-width: 30rem;
+}
+
+.scroll-hint {
+  position: absolute;
+  left: var(--gutter);
+  bottom: 2rem;
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.75;
+  margin: 0;
+}
+
+/* ---- 2. Descent ---- */
+#descent {
+  height: 300svh;
+}
+
+.note-slot {
+  position: absolute;
+  max-width: min(21rem, 78vw);
+}
+
+.note-slot:nth-child(1) { top: 12%; left: var(--gutter); }
+.note-slot:nth-child(2) { top: 42%; right: var(--gutter); }
+.note-slot:nth-child(3) { top: 72%; left: calc(var(--gutter) + 4vw); }
+
+.note {
+  margin: 0;
+  padding: 0.8rem 1.15rem 0.9rem;
+  font-size: clamp(1.25rem, 2.1vw, 1.75rem);
+  line-height: 1.15;
+}
+
+.note-slot:nth-child(2) .note { background: var(--face-pink); }
+.note-slot:nth-child(3) .note { background: var(--face-green); }
+
+/* ---- 3. Moon ---- */
+#moon {
+  height: 200svh;
+}
+
+.moon-line {
+  position: absolute;
+  top: 22%;
+  left: var(--gutter);
+  margin: 0;
+  max-width: 14ch;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.75rem, 4.2vw, 3.5rem);
+  line-height: 1;
+}
+
+/* ---- 4. Hold ---- */
+#hold {
+  height: 150svh;
+}
+
+/* The drag target over the cube. Only live during the hold, so it never blocks page scrolling elsewhere. */
+#cube-hit {
+  position: fixed;
+  z-index: 2;
+  left: 50%;
+  top: 50%;
+  width: min(46vh, 84vw);
+  height: min(46vh, 84vw);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  touch-action: none;
+  pointer-events: none;
+  cursor: grab;
+}
+
+#cube-hit.is-live { pointer-events: auto; }
+#cube-hit.is-dragging { cursor: grabbing; }
+
+.hold-hint {
+  position: fixed;
+  z-index: 2;
+  left: 50%;
+  bottom: 12vh;
+  transform: translateX(-50%) rotate(-2deg);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+#cube-hit.is-live ~ .hold-hint { opacity: 1; }
+
+/* ---- 7. Outro ---- */
+#outro {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.outro-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(3rem, 9vw, 7rem);
+  line-height: 0.95;
+  margin: 0 0 1rem;
+}
+
+.outro-line {
+  font-size: clamp(1.0625rem, 1.5vw, 1.3125rem);
+  margin: 0 0 1.75rem;
+  max-width: 28rem;
+}
+
+.outro-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 0.9rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.outro-links li:nth-child(1) .sticker { background: var(--face-yellow); transform: rotate(-3deg); }
+.outro-links li:nth-child(2) .sticker { background: var(--face-blue); transform: rotate(2deg); }
+.outro-links li:nth-child(3) .sticker { background: var(--face-green); transform: rotate(-1.5deg); }
+.outro-links li:nth-child(4) .sticker { background: var(--face-orange); transform: rotate(3deg); }
+
+/* ---- always-on corner sticker ---- */
+.corner {
+  position: fixed;
+  z-index: 4;
+  top: 1rem;
+  right: 1rem;
+}
+
+button.sticker {
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transform: rotate(2deg);
+  transition: transform 0.2s ease;
+}
+
+button.sticker:hover { transform: rotate(-1deg) translateY(-2px); }
+
+button.sticker:focus-visible {
+  outline: 3px solid var(--face-yellow);
+  outline-offset: 3px;
+}
+
+.fps {
+  position: fixed;
+  z-index: 5;
+  left: 0.5rem;
+  top: 0.5rem;
+  padding: 0.1rem 0.4rem;
+  font: 700 0.75rem/1.4 var(--font-body);
+  color: var(--ink);
+  background: var(--cream);
+  border-radius: 6px;
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+/* ---- phones ---- */
+@media (max-width: 40rem) {
+  #about { justify-content: flex-end; padding-bottom: 6.5rem; }
+  .about-text { max-width: 100%; }
+  #descent { height: 240svh; }
+  .moon-line { top: 14%; }
+}

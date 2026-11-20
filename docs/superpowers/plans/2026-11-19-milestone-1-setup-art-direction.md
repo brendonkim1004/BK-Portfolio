@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** A running Vite project with a proposed palette, a type test page for choosing fonts, and a visual storyboard, so Brendan can make the art-direction picks before any 3D work starts.
+**Goal:** A running Vite project with a proposed palette, a type test page for choosing fonts, and a visual storyboard, so Brendon can make the art-direction picks before any 3D work starts.
 
 **Architecture:** Hand-written Vite multi-page setup (no scaffolder, so nothing interactive). The palette lives in one JS module that both CSS (as custom properties) and, later, Three.js read from. The type test and storyboard are plain HTML pages that exist only for decisions and are not linked from the real site.
 
@@ -17,7 +17,7 @@
 - PRD section 6 "do not use" list applies to every page, including the test pages: no purple-to-blue gradients, neon glow, glassmorphism, gradient text, Inter/Roboto/system fonts as the design font, emoji or stock icons, identical rounded-card grids.
 - Flat colour only. DOM animation, if any, uses `transform` and `opacity` only.
 - No real Concord data, names, or numbers anywhere, including sample copy.
-- Sample copy is first-person and friendly, and marked as placeholder wording for Brendan to replace.
+- Sample copy is first-person and friendly, and marked as placeholder wording for Brendon to replace.
 - Repo root: `C:\Users\brend\Projects\moon-cube-portfolio`. Commit after each task, ending messages with `Co-Authored-By: Claude Fable 5.2 <noreply@anthropic.com>`.
 
 ## Review Focus
@@ -146,7 +146,7 @@ Page content, built from `displayFonts` so each font gets an identical specimen:
 - **Palette strip:** one swatch per palette colour with its name and hex, flat fills with a 3 px `--outline` border.
 - **One specimen per font, lettered A to D,** each shown twice: on `--ink` with cream text, and on `--cream` with ink text. Every specimen contains:
   - the font's name as a small label
-  - a hero line at `clamp(3rem, 10vw, 7rem)`: "Hi, I'm Brendan"
+  - a hero line at `clamp(3rem, 10vw, 7rem)`: "Hi, I'm Brendon"
   - a subhead: "I build tools that make busy teams' days easier."
   - a paragraph of Nunito body copy (two sentences, first-person, marked "placeholder wording")
   - a row of six sticker-style labels, one per face colour, ink text, each rotated by a different small amount (between -3 and 3 degrees) with a hard offset shadow in `--outline` (no blur), reading: "Truck tracker", "Inventory", "Online store", "Pumps store", "Coming soon", "Coming soon"
@@ -188,7 +188,7 @@ Seven panels in scroll order, stacked vertically and joined by a hand-drawn-look
 
 Below the panels, one line showing the two always-visible stickers: "skip to the work" and "view as list".
 
-- [ ] **Step 1: Implement `storyboard.html` and `storyboard.js`** (SVG markup lives in the HTML; the script only calls `applyPalette()`). Use the font stack fallback for now; the chosen display font is applied after Brendan picks.
+- [ ] **Step 1: Implement `storyboard.html` and `storyboard.js`** (SVG markup lives in the HTML; the script only calls `applyPalette()`). Use the font stack fallback for now; the chosen display font is applied after Brendon picks.
 - [ ] **Step 2: Verify in the browser** (`/storyboard.html`): seven panels in order, empty console, no horizontal scroll at 360 px, colours come from the palette variables (change one value in `palette.js`, see it change, revert).
 - [ ] **Step 3: Run `npm test`.** Expected: PASS.
 - [ ] **Step 4: Commit** (`feat: add storyboard page`).
@@ -198,9 +198,9 @@ Below the panels, one line showing the two always-visible stickers: "skip to the
 ### Task 5: Milestone check-in
 
 - [ ] **Step 1:** Run `npm test` and `npm run build`; both succeed.
-- [ ] **Step 2:** Stop and show Brendan how to run it (`npm run dev`, then the two page URLs), and ask in one batch:
+- [ ] **Step 2:** Stop and show Brendon how to run it (`npm run dev`, then the two page URLs), and ask in one batch:
   1. Which display font (A to D)? Any colours to change?
-  2. Is "Brendan" the name to display, and how should it read?
+  2. Is "Brendon" the name to display, and how should it read?
   3. For each of the four projects: one-line problem, what you built, your role, tech, result (numbers only if safe).
   4. The two stores: public sites to link live, or fake-data demos? One cube face or two?
   5. Screenshots, or design the demo UI from your description? (Blank out anything real.)

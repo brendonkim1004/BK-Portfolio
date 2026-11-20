@@ -65,7 +65,7 @@ function panel(font, tone) {
     fontWeight: font.weight,
   };
   return el('div', { class: `panel panel--${tone}` }, [
-    el('p', { class: 'hero-line', style: display }, "Hi, I'm Brendan"),
+    el('p', { class: 'hero-line', style: display }, 'Brendon Kim'),
     el('p', { class: 'subhead', style: display }, "I build tools that make busy teams' days easier."),
     el(
       'p',

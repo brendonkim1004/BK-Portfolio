@@ -4,7 +4,7 @@ Source PRD: `C:\Users\brend\OneDrive - UBC\CodingTest\BKProjects\Moon_Cube_Portf
 
 ## Context
 
-Brendan (UBC business + CS) wants a portfolio that lands with **business / product hiring** (PM, ops, consulting-type roles). The site is a scroll journey through toy-like space to the moon, where a scrambled Rubik's cube frees itself and solves as you scroll; each face opens a project. The work shown is from his job at Concord and must only ever appear as fake-data demos. The folder is empty apart from the PRD, so this is a new build.
+Brendon (UBC business + CS) wants a portfolio that lands with **business / product hiring** (PM, ops, consulting-type roles). The site is a scroll journey through toy-like space to the moon, where a scrambled Rubik's cube frees itself and solves as you scroll; each face opens a project. The work shown is from his job at Concord and must only ever appear as fake-data demos. The folder is empty apart from the PRD, so this is a new build.
 
 ## Goals, non-goals, anti-goals
 
@@ -12,7 +12,7 @@ Brendan (UBC business + CS) wants a portfolio that lands with **business / produ
 - **Non-goals:** backend, CMS, login, real data, photorealism, game mechanics beyond spinning the cube.
 - **Anti-goals (failure even if it works):** any real Concord data on screen; janky or stuttering motion; the generic AI look (PRD section 6 "do not use" list); a visitor in a hurry never reaching the work or the contact links.
 
-## Decisions Brendan made
+## Decisions Brendon made
 
 1. **Audience:** business / product roles.
 2. **After the solve, scroll never locks.** The solved cube holds in place for about one screen of scroll while drag spins it. Scrolling on drifts the camera up past the cube to the outro. Scrolling back un-solves it.
@@ -26,7 +26,7 @@ Brendan (UBC business + CS) wants a portfolio that lands with **business / produ
 - **C. Code plus one Blender hero object.** Kept open for later: each object lives in its own module with the same interface, so the moon can be swapped for a glTF without touching anything else.
 - Ruled out: pre-rendered video scrub (the cube must be draggable and clickable).
 
-## My calls (not yet confirmed by Brendan; correct any)
+## My calls (not yet confirmed by Brendon; correct any)
 
 - **Project location:** outside OneDrive, e.g. `C:\Users\brend\Projects\moon-cube-portfolio`, as a git repo pushed to GitHub. OneDrive syncs `node_modules` badly and can lock files mid-build. Confirm the path before scaffolding. Copy the PRD and this design in (`docs/`).
 - **Project pages lead with the story:** problem and result first, then the demo, with tech as a small footnote.
@@ -95,7 +95,7 @@ Same order as PRD section 12, stopping for feedback after each. Changes from the
 6. **Polish:** phones, reduced motion, performance pass, loader measurement, sound decision.
 7. **Launch:** accessibility, meta tags and share image, real-device check, deploy to Vercel or Netlify.
 
-## Open questions for Brendan (asked in Milestone 1, needed before Milestone 4)
+## Open questions for Brendon (asked in Milestone 1, needed before Milestone 4)
 
 From PRD section 2, still unanswered:
 
@@ -108,7 +108,7 @@ From PRD section 2, still unanswered:
 
 ## Left to the builder
 
-Exact camera path, object placement and counts, easing values, the scramble move list, particle counts per device tier, palette hex values (proposed in Milestone 1 for approval), and microcopy drafts (written in a friendly first-person voice and shown to Brendan for wording, never shipped as filler).
+Exact camera path, object placement and counts, easing values, the scramble move list, particle counts per device tier, palette hex values (proposed in Milestone 1 for approval), and microcopy drafts (written in a friendly first-person voice and shown to Brendon for wording, never shipped as filler).
 
 ## Verification
 
