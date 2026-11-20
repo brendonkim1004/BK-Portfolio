@@ -1,0 +1,26 @@
+/* Shared base for every page. Colours here are fallbacks; palette.js sets the real variables. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --font-fallback: ui-rounded, "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--ink, #141B3C);
+  color: var(--cream, #FFF4DC);
+  font-family: var(--font-body, var(--font-fallback));
+  line-height: 1.5;
+}
+
+a {
+  color: inherit;
+}
