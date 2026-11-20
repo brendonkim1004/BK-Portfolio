@@ -29,7 +29,9 @@ export function setupScroll() {
         endTrigger: selector,
         start: key === 'descent' ? 'top top' : 'top bottom',
         end: 'bottom bottom',
-        scrub: SCRUB,
+        // The ending follows the scrollbar exactly, so the 3D moon and the contact text that
+        // rides over it can never drift apart. (Lenis has already smoothed the scrolling.)
+        scrub: key === 'outro' ? true : SCRUB,
       },
     });
 
@@ -54,8 +56,8 @@ export function setupScroll() {
     }, 160);
   });
 
-  // Where "the work" is: the cube, just into its short pause.
-  const workSpot = () => holdStart() + window.innerHeight * 0.15;
+  // Where "the work" is: the solved cube, just before the page tips down to the contact links.
+  const workSpot = () => holdStart();
 
   return {
     journey,
@@ -66,8 +68,8 @@ export function setupScroll() {
     // While the cube is still solving, scrolling stops at the cube so the show is not skipped.
     // Called every frame during the solve; it does nothing unless the page has gone past.
     holdAtCube: () => {
-      const limit = holdStart() + window.innerHeight * 0.2;
-      if (window.scrollY > limit) lenis.scrollTo(limit, { immediate: true, force: true });
+      const limit = holdStart();
+      if (window.scrollY > limit + 1) lenis.scrollTo(limit, { immediate: true, force: true });
     },
   };
 }

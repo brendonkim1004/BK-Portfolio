@@ -180,9 +180,10 @@ html.on-moon .corner { color: var(--ink); }
 }
 
 /* ---- 4. Hold ---- */
-/* A short pause with the solved cube before the page tips down onto the moon for the contact links. */
+/* No scroll of its own: the page tips down onto the moon as soon as you scroll on from the solved
+   cube. The section only holds the cube's fixed helpers (drag area, hint, hover card). */
 #hold {
-  height: 40svh;
+  height: 0;
 }
 
 /* The drag target over the cube. Only live during the hold, so it never blocks page scrolling elsewhere. */

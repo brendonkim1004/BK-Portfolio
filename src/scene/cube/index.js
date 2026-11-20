@@ -5,6 +5,7 @@ import gsap from 'gsap';
 import { FACES, buildCubies } from './model.js';
 import { HOME, buildStates, poseCubies } from './solve.js';
 import { createBurstFx } from './burst.js';
+import { createCelebration } from './celebrate.js';
 import { palette } from '../../styles/palette.js';
 
 const smooth = (a, b, x) => {
@@ -46,6 +47,12 @@ export function createCube({ hitEl, camera, isPhone, burst, onFaceClick, onLabel
 
   const fx = createBurstFx({ isPhone });
   pose.add(fx);
+
+  // The "done!" moment after the solve: stickers pop out round the cube while it does one happy turn.
+  const confetti = createCelebration({ count: isPhone ? 12 : 18 });
+  spin.add(confetti);
+  const cheer = { value: 0 }; // 0..1, played once each time the solve completes
+  const cheerTween = gsap.to(cheer, { value: 1, duration: 1.1, ease: 'none', paused: true });
 
   // Each cubie's own outward path and tumble for the burst, fixed once so it reverses exactly.
   let seed = 11;
@@ -160,11 +167,18 @@ export function createCube({ hitEl, camera, isPhone, burst, onFaceClick, onLabel
   // One number, 0 (stuck and scrambled) to 1 (floating and solved), played over time.
   // It still drives everything, so rewinding it un-solves exactly.
   const release = { value: 0 };
-  const releaseTween = gsap.to(release, { value: 1, duration: PLAY_SECONDS, ease: 'none', paused: true });
+  const releaseTween = gsap.to(release, {
+    value: 1,
+    duration: PLAY_SECONDS,
+    ease: 'none',
+    paused: true,
+    onComplete: () => cheerTween.restart(), // only fires when it finishes going forward
+  });
   let released = false;
 
   let inHold = false;
   let live = false;
+  let bobAmount = 0;
   const toCamera = new THREE.Vector3();
   const worldQuat = new THREE.Quaternion();
   const faceDir = new THREE.Vector3();
@@ -179,6 +193,7 @@ export function createCube({ hitEl, camera, isPhone, burst, onFaceClick, onLabel
     } else if (released && journey.moon < RESET) {
       released = false;
       releaseTween.timeScale(REWIND_SPEED).reverse();
+      cheerTween.pause(0);
     }
 
     const m = release.value;
@@ -189,6 +204,9 @@ export function createCube({ hitEl, camera, isPhone, burst, onFaceClick, onLabel
       Math.sin(m * 60) * 0.07 * smooth(WIGGLE[0], WIGGLE[1], m) * (1 - smooth(WIGGLE[2], WIGGLE[3], m));
     pose.quaternion.slerpQuaternions(wedged, display, rise);
     pose.rotateZ(wiggle);
+    // Celebration: one full turn that starts fast and settles exactly where it began.
+    const c = cheer.value;
+    if (c > 0 && c < 1) pose.rotateY(Math.PI * 2 * (1 - (1 - c) ** 3));
 
     // The solve: a pure function of the release value.
     poseCubies(states, (m - SOLVE[0]) / (SOLVE[1] - SOLVE[0]), cubies);
@@ -272,11 +290,15 @@ export function createCube({ hitEl, camera, isPhone, burst, onFaceClick, onLabel
     }
 
     pulse = Math.max(0, pulse - dt * 3);
-    const bob = inHold ? Math.sin(time * 1.1) * 0.08 : 0;
+    // The gentle bob fades in and out instead of switching, so nothing jumps as you scroll on.
+    bobAmount += ((inHold ? 1 : 0) - bobAmount) * (1 - Math.exp(-4 * dt));
+    const bob = Math.sin(time * 1.1) * 0.08 * bobAmount;
     spin.position.y = restY + (liftY - restY) * rise + bob;
     // It swells to its full size while it solves, so it arrives in the centre big and finished.
     const size = scale * (1 + (grow - 1) * smooth(GROW[0], GROW[1], m));
-    spin.scale.setScalar(size * (1 + Math.sin(pulse * Math.PI) * 0.06));
+    const cheerPop = c > 0 && c < 1 ? Math.sin(Math.PI * Math.min(1, c * 2.2)) * 0.09 : 0; // a quick swell
+    spin.scale.setScalar(size * (1 + Math.sin(pulse * Math.PI) * 0.06 + cheerPop));
+    confetti.setProgress(c);
   };
 
   // Keyboard: bring a face round to the front (null lets go).
