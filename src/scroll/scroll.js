@@ -58,5 +58,8 @@ export function setupScroll() {
     journey,
     lenis,
     scrollToWork: () => lenis.scrollTo(holdStart() + window.innerHeight * 0.3, { duration: 2.2 }),
+    // Same place, with no travel: used when a project is opened from a link or from the list.
+    jumpToWork: () =>
+      lenis.scrollTo(holdStart() + window.innerHeight * 0.3, { immediate: true, force: true }),
   };
 }

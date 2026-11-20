@@ -37,6 +37,8 @@ This file was written on 2026-11-19 as a handoff from an earlier session that ra
 - **Milestone 1:** Vite setup, palette with contrast tests, and two decision pages (`/type-test.html`, `/storyboard.html`). The decision pages are throwaway and come out before launch.
 - **Milestone 2:** the real page (`index.html`): About screen, space objects, scroll-driven descent, the moon, a grey stand-in box that wiggles free, lifts, and can be dragged during the hold, the outro, and the "skip to the work" sticker. Checked in headless Chrome at desktop and phone sizes; not yet checked on a real phone or approved by Brendon.
 
+- **Visuals for Milestones 3 to 5** (built in one pass on 2026-11-19, at Brendon's request to do all visuals first and details after): the real 27-piece cube with the scroll-driven solve and dust puff, drag, face hover with title stickers, keyboard face buttons, the burst (cubies, shards, scan lines, HUD label, colour flood), the project page layout, `#project/<id>` links, and the "view as list" page. Checked in headless Chrome at desktop and phone sizes only. **Still placeholder:** every line of project text except the titles, the demo window (empty frame), and the contact links.
+
 Where things live:
 
 ```
@@ -44,12 +46,18 @@ index.html              page text, in scroll order: about, descent, moon, hold, 
 src/main.js             wires text, scroll and scene together
 src/styles/             palette.js (colours), base.css, site.css
 src/scroll/scroll.js    Lenis smooth scroll + the "journey" values (descent, moon, outro: 0 to 1)
+src/data/projects.js    every project's text and which face colour it sits on
 src/ui/textMotion.js    name reveal and floating notes
+src/ui/projectView.js   burst screen effects (HUD, scan lines, colour flood) and the project page
+src/ui/listView.js      "view as list" page
+src/ui/faceLabel.js     title sticker for the hovered face
+src/ui/faceButtons.js   hidden keyboard buttons, one per face
 src/scene/stage.js      renderer, camera, lights
 src/scene/materials.js  toon shading and the wobbly outline
 src/scene/world.js      places every object and moves the camera from the journey values
-src/scene/objects/      planets, satellite, asteroids, comet, moon, stars
-src/scene/greyBox.js    stand-in for the cube, including drag with inertia
+src/scene/objects/      planets, satellite, asteroids, comet, moon, stars, dust puff
+src/scene/cube/         solve.js (scramble + snapshots), model.js (cubies, face colours),
+                        burst.js (shards + particles), index.js (pose, drag, hover, click)
 src/dev/fps.js          dev-only frame-rate readout
 src/pages/              the two decision pages
 tests/                  palette contrast and build checks
@@ -57,10 +65,9 @@ tests/                  palette contrast and build checks
 
 ## What is next
 
-1. **Brendon's feedback on Milestone 2:** the wording, whether the dark outlines need to be more visible against the navy, and whether the snap onto the cube feels helpful or sticky.
-2. **Milestone 3:** replace `src/scene/greyBox.js` with the real 27-piece cube. The scramble is a fixed move list; the solve is that list reversed and driven by scroll, computed from stored snapshots so scrolling back un-solves exactly. Keep the drag behaviour from the grey box.
-3. **Content, one item at a time:** each project's one-line problem, what was built, Brendon's role, tech, and result; then contact links (email, GitHub, LinkedIn, resume). Before building each demo, ask which screens to include.
-4. Milestones 4 to 7 as listed in the design doc.
+1. **Brendon's feedback on the visuals:** the wording, whether the dark outlines need to be more visible against the navy, whether the snap onto the cube feels helpful or sticky, the solve speed (the moon stretch is now 240svh), and the burst and project page look.
+2. **Content, one item at a time:** each project's one-line problem, what was built, Brendon's role, tech, and result; then contact links (email, GitHub, LinkedIn, resume). Before building each demo, ask which screens to include.
+3. Milestone 6 (reduced motion, phone tuning, performance, loader measurement) and Milestone 7 (launch) as listed in the design doc.
 
 ## Running it
 
@@ -76,4 +83,6 @@ npm run build    production build into dist/
 - `npm test` runs a full build each time; split that out if it gets slow.
 - `contrastRatio` in `palette.js` returns NaN for short hex like `#fff`.
 - The dark outline colour is nearly invisible on the navy background (a palette choice still open).
-- The production bundle is about 690 kB before compression, mostly Three.js; measure before deciding on a loader (Milestone 6).
+- On phones the "Hang on" line runs under the corner stickers during the moon stretch.
+- `prefers-reduced-motion` is not handled yet (Milestone 6).
+- The production bundle is about 740 kB before compression (207 kB gzipped), mostly Three.js; measure before deciding on a loader (Milestone 6).

@@ -22,7 +22,7 @@ body {
 .grain {
   position: fixed;
   inset: 0;
-  z-index: 3;
+  z-index: 9; /* above the project and list views too, so the whole site shares one texture */
   pointer-events: none;
   opacity: 0.11;
   mix-blend-mode: overlay;
@@ -34,7 +34,12 @@ main {
   z-index: 1;
 }
 
-section {
+/* Keeps the page from shifting sideways when scrolling is paused for a project or the list. */
+html {
+  scrollbar-gutter: stable;
+}
+
+main > section {
   position: relative;
   padding: 0 var(--gutter);
 }
@@ -131,7 +136,7 @@ section {
 
 /* ---- 3. Moon ---- */
 #moon {
-  height: 200svh;
+  height: 240svh; /* release, lift and the 13-move solve all happen inside this stretch */
 }
 
 .moon-line {
@@ -183,6 +188,346 @@ section {
 
 #cube-hit.is-live ~ .hold-hint { opacity: 1; }
 
+/* Title sticker for a cube face. JS sets its position with transform only. */
+.face-label {
+  position: fixed;
+  z-index: 2;
+  left: 0;
+  top: 0;
+  margin: 0;
+  font-size: 1.1875rem;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.face-label.is-on { opacity: 1; }
+
+/* Present for keyboards and screen readers, invisible on screen.
+   Fixed, so focusing a face button never makes the browser jump the page. */
+.visually-hidden {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  list-style: none;
+}
+
+/* ---- 5. Burst: the one futuristic moment ---- */
+.burst-fx {
+  position: fixed;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* A circle that grows from the click point. JS sets its size and place once per open. */
+.flood {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  will-change: transform;
+}
+
+.scanlines {
+  position: absolute;
+  inset: -4% 0;
+  opacity: 0;
+  background: repeating-linear-gradient(to bottom, var(--cream) 0 1px, transparent 1px 5px);
+}
+
+.hud {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: 0;
+  padding: 0.55rem 1rem 0.5rem;
+  display: flex;
+  gap: 1.1rem;
+  align-items: baseline;
+  white-space: nowrap;
+  font: 700 0.8125rem/1 var(--font-body);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--cream);
+  background: var(--outline);
+  border: 1px solid var(--cream);
+  opacity: 0;
+}
+
+/* Thin tick marks either side of the plate. */
+.hud::before,
+.hud::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 3.5rem;
+  height: 1px;
+  background: var(--cream);
+}
+
+.hud::before { right: calc(100% + 0.6rem); }
+.hud::after { left: calc(100% + 0.6rem); }
+.hud-face { opacity: 0.7; }
+
+/* ---- 6. Project view: themed with the clicked face's colour ---- */
+[hidden] { display: none !important; }
+
+.project-view {
+  position: fixed;
+  inset: 0;
+  z-index: 8;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--theme);
+  color: var(--ink);
+}
+
+.pv-back {
+  position: fixed;
+  z-index: 1;
+  top: 1rem;
+  left: 1rem;
+}
+
+.pv-page {
+  max-width: 70rem;
+  margin: 0 auto;
+  padding: 6.5rem var(--gutter) 6rem;
+}
+
+.pv-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(2.75rem, 8.5vw, 7rem);
+  line-height: 0.92;
+  letter-spacing: -0.01em;
+  margin: 0 0 1.25rem;
+  max-width: 11ch;
+}
+
+.pv-summary {
+  font-weight: 700;
+  font-size: clamp(1.125rem, 1.7vw, 1.4375rem);
+  max-width: 34rem;
+  margin: 0;
+}
+
+.pv-label {
+  font: 700 0.8125rem/1.2 var(--font-body);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin: 0 0 0.6rem;
+}
+
+/* Problem and result come first: big statement on the left, result as a tilted paper note. */
+.pv-story {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 2.5rem 3rem;
+  align-items: start;
+  margin: 4rem 0 5rem;
+}
+
+.pv-problem p {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.625rem, 3.2vw, 2.75rem);
+  line-height: 1.08;
+  margin: 0;
+}
+
+.pv-result {
+  margin-top: 3rem;
+  padding: 1.4rem 1.6rem 1.5rem;
+  background: var(--cream);
+  border: 3px solid var(--outline);
+  border-radius: 22px 28px 20px 26px;
+  box-shadow: 8px 8px 0 var(--outline);
+  transform: rotate(1.5deg);
+}
+
+.pv-result p {
+  font-size: clamp(1.125rem, 1.6vw, 1.375rem);
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 0;
+}
+
+/* The demo window, drawn in the site's own sticker style. */
+.pv-demo { margin: 0 0 5rem; }
+
+.demo-frame {
+  position: relative;
+  padding: 1rem;
+  background: var(--cream);
+  border: 4px solid var(--outline);
+  border-radius: 26px 32px 24px 30px;
+  box-shadow: 10px 10px 0 var(--outline);
+  transform: rotate(-0.6deg);
+}
+
+.demo-tab {
+  position: absolute;
+  top: -1.25rem;
+  left: 2rem;
+  background: var(--theme);
+  transform: rotate(-3deg);
+}
+
+.demo-screen {
+  aspect-ratio: 16 / 10;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  text-align: center;
+  color: var(--cream);
+  background: var(--ink);
+  border: 3px solid var(--outline);
+  border-radius: 14px 16px 13px 15px;
+}
+
+.demo-screen p {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.25rem, 2.4vw, 2rem);
+  margin: 0;
+  opacity: 0.8;
+}
+
+.pv-demo figcaption {
+  margin-top: 1.6rem;
+  font-weight: 700;
+  font-size: 0.9375rem;
+}
+
+.pv-detail {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem 3rem;
+  max-width: 56rem;
+}
+
+.pv-detail p {
+  font-size: clamp(1.0625rem, 1.4vw, 1.25rem);
+  margin: 0;
+}
+
+/* Tech is a small footnote, on purpose. */
+.pv-tech {
+  margin: 3.5rem 0 0;
+  padding-top: 1rem;
+  border-top: 3px solid var(--outline);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  max-width: 56rem;
+}
+
+/* ---- list view ---- */
+.list-view {
+  position: fixed;
+  inset: 0;
+  z-index: 8;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--ink);
+}
+
+.lv-close {
+  position: fixed;
+  z-index: 1;
+  top: 1rem;
+  left: 1rem;
+}
+
+.lv-page {
+  max-width: 58rem;
+  margin: 0 auto;
+  padding: 6.5rem var(--gutter) 5rem;
+}
+
+.lv-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(3rem, 9vw, 7rem);
+  line-height: 0.95;
+  margin: 0 0 2.5rem;
+}
+
+.lv-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lv-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  width: 100%;
+  padding: 1.25rem 0;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  border-top: 3px solid var(--cream);
+  cursor: pointer;
+}
+
+.lv-list li:last-child .lv-row { border-bottom: 3px solid var(--cream); }
+
+/* A single cube sticker in the project's face colour. Each one sits at its own small tilt. */
+.lv-swatch {
+  flex: none;
+  width: 3.25rem;
+  height: 3.25rem;
+  border: 3px solid var(--outline);
+  border-radius: 12px 15px 11px 14px;
+  box-shadow: 4px 4px 0 var(--outline);
+  transform: rotate(-4deg);
+  transition: transform 0.25s ease;
+}
+
+.lv-list li:nth-child(even) .lv-swatch { transform: rotate(3deg); }
+.lv-row:hover .lv-swatch,
+.lv-row:focus-visible .lv-swatch { transform: rotate(8deg) scale(1.08); }
+
+.lv-text { display: block; }
+
+.lv-name {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.5rem, 3.4vw, 2.5rem);
+  line-height: 1.05;
+}
+
+.lv-summary {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 1.0625rem;
+  opacity: 0.85;
+}
+
+.lv-row:focus-visible {
+  outline: 3px solid var(--face-yellow);
+  outline-offset: 4px;
+}
+
+.lv-more {
+  margin: 2rem 0 0;
+  font-weight: 700;
+}
+
 /* ---- 7. Outro ---- */
 #outro {
   min-height: 100svh;
@@ -226,7 +571,18 @@ section {
   z-index: 4;
   top: 1rem;
   right: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.7rem;
 }
+
+#view-list {
+  background: var(--face-blue);
+  transform: rotate(-2deg);
+}
+
+#view-list:hover { transform: rotate(1deg) translateY(-2px); }
 
 button.sticker {
   font-size: 0.9375rem;
@@ -244,9 +600,9 @@ button.sticker:focus-visible {
 
 .fps {
   position: fixed;
-  z-index: 5;
+  z-index: 10;
   left: 0.5rem;
-  top: 0.5rem;
+  bottom: 0.5rem;
   padding: 0.1rem 0.4rem;
   font: 700 0.75rem/1.4 var(--font-body);
   color: var(--ink);
@@ -262,4 +618,14 @@ button.sticker:focus-visible {
   .about-text { max-width: 100%; }
   #descent { height: 240svh; }
   .moon-line { top: 14%; }
+  .pv-story,
+  .pv-detail { grid-template-columns: 1fr; }
+  .pv-story { margin: 2.5rem 0 3.5rem; }
+  .pv-result { margin-top: 0; }
+  .pv-page,
+  .lv-page { padding-top: 5.5rem; }
+  .demo-frame { padding: 0.6rem; }
+  .hud { letter-spacing: 0.12em; }
+  .hud::before,
+  .hud::after { display: none; }
 }

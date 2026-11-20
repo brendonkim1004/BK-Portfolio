@@ -14,6 +14,7 @@
 
     <div class="corner">
       <button id="skip-to-work" class="sticker" type="button">skip to the work</button>
+      <button id="view-list" class="sticker" type="button">view as list</button>
     </div>
 
     <main>
@@ -46,6 +47,10 @@
       <section id="hold" aria-label="Projects">
         <div id="cube-hit" aria-hidden="true"></div>
         <p class="hold-hint sticker">drag to look around</p>
+        <!-- The title sticker for the face being pointed at. Filled in by main.js. -->
+        <p id="face-label" class="sticker face-label" aria-hidden="true"></p>
+        <!-- Keyboard access: one button per cube face, filled in from the projects data. -->
+        <ul id="face-buttons" class="visually-hidden" aria-label="Projects on the cube"></ul>
       </section>
 
       <section id="outro">

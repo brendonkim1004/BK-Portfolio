@@ -5,7 +5,8 @@ import { createRingedPlanet, createSmallPlanet } from './objects/planets.js';
 import { createSatellite, createAsteroids, createComet } from './objects/spaceJunk.js';
 import { createMoon } from './objects/moon.js';
 import { createStars } from './objects/stars.js';
-import { createGreyBox } from './greyBox.js';
+import { createDust } from './objects/dust.js';
+import { createCube } from './cube/index.js';
 
 // World heights (y). The camera starts at 0 and travels down.
 const DESCENT_END = -40; // camera height when the descent stretch finishes
@@ -17,7 +18,8 @@ const CAMERA_Z = 14;
 const easeOut = (t) => 1 - (1 - t) ** 3;
 const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
 
-export function createWorld(stage, { hitEl, isPhone }) {
+// cubeOptions are passed straight to the cube: { burst, onFaceClick, onLabel }.
+export function createWorld(stage, { hitEl, isPhone, ...cubeOptions }) {
   const { scene, camera } = stage;
   const drifting = []; // things with update(time)
   const placed = []; // things whose x shrinks on narrow screens
@@ -78,9 +80,13 @@ export function createWorld(stage, { hitEl, isPhone }) {
   moon.position.y = MOON_TOP;
   scene.add(moon);
 
-  const box = createGreyBox(hitEl);
-  scene.add(box);
-  let boxScale = 1;
+  const dust = createDust({ count: isPhone ? 7 : 11 });
+  dust.position.y = MOON_TOP;
+  scene.add(dust);
+
+  const cube = createCube({ hitEl, camera, isPhone, ...cubeOptions });
+  scene.add(cube);
+  let cubeScale = 1;
 
   stage.onResize((aspect) => {
     // Wide screens keep the full layout; tall phone screens squeeze it toward the centre.
@@ -92,7 +98,7 @@ export function createWorld(stage, { hitEl, isPhone }) {
       object.position.y = object.userData.homeY;
       object.scale.setScalar(object.userData.baseScale * (0.7 + 0.3 * k));
     }
-    boxScale = 0.72 + 0.28 * k;
+    cubeScale = 0.72 + 0.28 * k;
   });
 
   const pointer = { x: 0, y: 0 }; // smoothed cursor offset, -1..1
@@ -112,8 +118,9 @@ export function createWorld(stage, { hitEl, isPhone }) {
     camera.lookAt(0, camY, 0);
 
     for (const object of drifting) object.update(time);
-    box.update(time, dt, journey, { restY: MOON_TOP + 0.35, liftY: ARRIVE + 0.2, scale: boxScale });
+    dust.setProgress(journey.moon);
+    cube.update(time, dt, journey, { restY: MOON_TOP + 0.35, liftY: ARRIVE + 0.2, scale: cubeScale });
   }
 
-  return { update };
+  return { update, cube };
 }

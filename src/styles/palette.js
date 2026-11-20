@@ -6,6 +6,8 @@ export const palette = {
   cream: '#FFF4DC', // warm text and paper
   moon: '#C9C6BD',
   moonShade: '#9A978F',
+  dust: '#E9E5D8', // the puff when the cube pulls free
+  cubeBody: '#232B55', // the cube's plastic, a step lighter than space so its shape still reads
   outline: '#0A0D1F', // chunky outlines and hard shadows
   faces: {
     red: '#F2503B',
