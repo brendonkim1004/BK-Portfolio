@@ -18,7 +18,7 @@ import { createFpsMeter } from './dev/fps.js';
 
 applyPalette();
 
-const { journey, lenis, scrollToWork, jumpToWork } = setupScroll();
+const { journey, lenis, scrollToWork, jumpToWork, holdAtCube } = setupScroll();
 setupTextMotion();
 
 const isPhone = window.matchMedia('(pointer: coarse)').matches;
@@ -174,6 +174,8 @@ try {
   // GSAP's ticker drives everything, so scroll smoothing and rendering stay in step.
   gsap.ticker.add((time, deltaMs) => {
     tickFps?.();
+    // The contact section is right after the cube, but it waits until the cube has finished solving.
+    if (world.cube.isSolving()) holdAtCube();
     if (covered) return; // nothing to draw while a project or the list covers the scene
     world.update(time, Math.min(deltaMs / 1000, 0.1), journey, cursor);
     // Once the moon is behind the corner links they switch from cream to ink.

@@ -150,45 +150,15 @@ html.on-moon .corner { color: var(--ink); }
   margin: 0;
 }
 
-.scroll-hint {
-  position: absolute;
-  left: var(--gutter);
-  bottom: 2rem;
-  font-weight: 700;
-  font-size: 0.875rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  opacity: 0.75;
-  margin: 0;
-}
 
 /* ---- 2. Descent ---- */
 #descent {
-  height: 190svh; /* two notes' worth of scroll before the moon */
+  height: 190svh; /* the flight down through space to the moon */
 }
 
-.note-slot {
-  position: absolute;
-  max-width: min(34rem, 84vw);
-}
 
-/* Floating notes: big plain statements, no boxes. */
-.note {
-  margin: 0;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: clamp(1.625rem, 3.4vw, 3rem);
-  line-height: 1.05;
-  max-width: 16ch;
-}
 
-.note-slot:nth-child(2) .note {
-  color: var(--face-yellow);
-  text-align: right;
-}
 
-.note-slot:nth-child(1) { top: 16%; left: var(--gutter); }
-.note-slot:nth-child(2) { top: 58%; right: var(--gutter); }
 
 
 
@@ -210,8 +180,9 @@ html.on-moon .corner { color: var(--ink); }
 }
 
 /* ---- 4. Hold ---- */
+/* A short pause with the solved cube before the page tips down onto the moon for the contact links. */
 #hold {
-  height: 150svh;
+  height: 40svh;
 }
 
 /* The drag target over the cube. Only live during the hold, so it never blocks page scrolling elsewhere. */

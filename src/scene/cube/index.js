@@ -297,6 +297,9 @@ export function createCube({ hitEl, camera, isPhone, burst, onFaceClick, onLabel
 
   spin.isInHold = () => inHold;
 
+  // True from the moment the cube starts to move until it is fully solved.
+  spin.isSolving = () => released && release.value < 1;
+
   // 0..1 progress of the release, for things that move with it (the dust puff).
   spin.releaseProgress = () => release.value;
 

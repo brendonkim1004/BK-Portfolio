@@ -54,12 +54,20 @@ export function setupScroll() {
     }, 160);
   });
 
+  // Where "the work" is: the cube, just into its short pause.
+  const workSpot = () => holdStart() + window.innerHeight * 0.15;
+
   return {
     journey,
     lenis,
-    scrollToWork: () => lenis.scrollTo(holdStart() + window.innerHeight * 0.3, { duration: 2.2 }),
+    scrollToWork: () => lenis.scrollTo(workSpot(), { duration: 2.2 }),
     // Same place, with no travel: used when a project is opened from a link or from the list.
-    jumpToWork: () =>
-      lenis.scrollTo(holdStart() + window.innerHeight * 0.3, { immediate: true, force: true }),
+    jumpToWork: () => lenis.scrollTo(workSpot(), { immediate: true, force: true }),
+    // While the cube is still solving, scrolling stops at the cube so the show is not skipped.
+    // Called every frame during the solve; it does nothing unless the page has gone past.
+    holdAtCube: () => {
+      const limit = holdStart() + window.innerHeight * 0.2;
+      if (window.scrollY > limit) lenis.scrollTo(limit, { immediate: true, force: true });
+    },
   };
 }

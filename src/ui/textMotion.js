@@ -1,4 +1,4 @@
-// Text motion for the HTML layer: the name reveal and the floating notes.
+// Text motion for the HTML layer: the name reveal.
 // Only transform and opacity are animated.
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -20,7 +20,7 @@ export async function setupTextMotion() {
     stagger: 0.04,
     delay: 0.15,
   });
-  gsap.from('.about-major, .about-school, .scroll-hint', {
+  gsap.from('.about-major, .about-school', {
     y: 18,
     opacity: 0,
     duration: 0.8,
