@@ -105,7 +105,7 @@ export function createPyraminx(radius = 1.7) {
   return puzzle(body, shapes, lean(0.12, 0.5, 0.2).multiply(upright));
 }
 
-// ---- Megaminx: twelve five-sided faces, each a centre piece ringed by five more ----
+// ---- Megaminx: twelve five-sided faces, each a centre, five corner diamonds and five edge pieces ----
 export function createMegaminx(radius = 1.3) {
   const phi = (1 + Math.sqrt(5)) / 2;
   const inv = 1 / phi;
@@ -141,14 +141,25 @@ export function createMegaminx(radius = 1.3) {
     const angle = (p) => Math.atan2(p.clone().sub(centre).dot(w), p.clone().sub(centre).dot(u));
     five.sort((p, q) => angle(p) - angle(q));
 
-    const ring = (scale) => five.map((p) => centre.clone().lerp(p, scale));
-    const outer = ring(0.88);
-    const middle = ring(0.5);
+    // A real Megaminx face is cut by five lines, one parallel to each edge. That leaves:
+    //   a diamond at each corner, a near-triangle on each edge pointing out from the middle,
+    //   and a small pentagon in the centre (together the centre and triangles read as a star).
+    const V = five.map((p) => centre.clone().lerp(p, 0.93)); // the face, with a thin dark margin
+    const CUT = 0.38; // how far along each edge the cut lands, as a share of the edge
+    const at = (k) => V[(k + 5) % 5];
+    const along = (from, to, t) => from.clone().lerp(to, t);
+    const A = V.map((v, k) => along(v, at(k + 1), CUT)); // on edge k, near corner k
+    const B = V.map((v, k) => along(at(k + 1), v, CUT)); // on edge k, near corner k + 1
+    // Inner point of each corner diamond: step in from the corner along both of its edges.
+    const Q = V.map((v, k) => v.clone().add(at(k + 1).clone().sub(v).multiplyScalar(CUT)).add(at(k - 1).clone().sub(v).multiplyScalar(CUT)));
+
     const color = colors[f % colors.length];
-    shapes.push({ points: ring(0.4), normal, color });
+    shapes.push({ points: shrink(Q, 0.84), normal, color }); // centre pentagon
     for (let k = 0; k < 5; k++) {
       const next = (k + 1) % 5;
-      shapes.push({ points: shrink([outer[k], outer[next], middle[next], middle[k]], 0.86), normal, color });
+      const prev = (k + 4) % 5;
+      shapes.push({ points: shrink([V[k], A[k], Q[k], B[prev]], 0.84), normal, color }); // corner diamond
+      shapes.push({ points: shrink([A[k], B[k], Q[next], Q[k]], 0.82), normal, color }); // edge piece
     }
   });
 
