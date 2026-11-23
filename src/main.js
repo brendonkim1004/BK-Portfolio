@@ -37,6 +37,26 @@ soundToggle.addEventListener('click', () => {
 
 setupTextMotion({ sound });
 
+// ---- phone menu: the corner links tuck behind a three-bar button on small screens ----
+const corner = document.querySelector('.corner');
+const menuToggle = document.querySelector('#menu-toggle');
+function setMenu(open) {
+  corner.classList.toggle('is-open', open);
+  menuToggle.setAttribute('aria-expanded', String(open));
+}
+menuToggle.addEventListener('click', () => setMenu(!corner.classList.contains('is-open')));
+// Picking a link closes the menu (the sound switch leaves it open, so the change can be seen).
+document.querySelector('#corner-links').addEventListener('click', (e) => {
+  if (e.target.closest('.cube-link') && !e.target.closest('#sound-toggle')) setMenu(false);
+});
+// So does tapping anywhere else, or pressing Escape.
+window.addEventListener('pointerdown', (e) => {
+  if (!corner.contains(e.target)) setMenu(false);
+});
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') setMenu(false);
+});
+
 const isPhone = window.matchMedia('(pointer: coarse)').matches;
 // Each cube face with the project it opens (or null for "Coming soon").
 const faces = FACES.map((face) => ({ ...face, project: projectForFace(face.color) }));

@@ -104,6 +104,8 @@ main > section {
 }
 
 html.on-moon .corner { color: var(--ink); }
+.corner-links { display: flex; flex-direction: column; align-items: flex-start; gap: 0.1rem; }
+.menu-toggle { display: none; } /* phones only: see the phone rules near the end */
 #view-list { --marker: var(--face-blue); }
 /* The timeline link comes first and is bigger than the others. */
 #view-timeline {
@@ -230,7 +232,8 @@ html.on-moon .corner { color: var(--ink); }
   position: fixed;
   z-index: 2;
   left: 50%;
-  top: calc(50% - min(30vh, 44vw) - 0.5rem);
+  /* Just above the cube, but never so high that the card runs off the top of a short screen. */
+  top: max(calc(50% - min(30vh, 44vw) - 0.5rem), 10.75rem);
   transform: translate(-50%, -100%);
   pointer-events: none;
 }
@@ -743,6 +746,11 @@ html.on-moon .corner { color: var(--ink); }
   .tl-walker .pixel-art, .tl-walker-body { animation: none !important; }
 }
 
+/* On wide screens the three bubbles share one height. */
+@media (min-width: 721px) {
+  .tl-bubble { flex: 1; }
+}
+
 /* Phones: the stops stack and the path runs down the left side. */
 @media (max-width: 720px) {
   .tl-card { padding: 1.2rem 1.1rem 1.6rem; }
@@ -962,7 +970,10 @@ html.on-moon .corner { color: var(--ink); }
   .pv-result { margin-top: 0; }
   .pv-page,
   .lv-page { padding-top: 5.5rem; }
-  .pv-demo:has(.has-demo) { --window: calc(100vw - 1.5rem); }
+  .pv-demo:has(.has-demo) { --window: calc(100vw - 2rem); }
+  .demo-frame { box-shadow: 6px 6px 0 var(--outline); }
+  .demo-screen.has-demo { height: min(80svh, 44rem); }
+  .pv-demo figcaption { margin-top: 1.2rem; }
   .pit-a { top: 16%; width: 26vw; height: 19vw; }
   .pit-b { display: none; }
   .pit-c { bottom: 3%; width: 20vw; height: 14vw; }
@@ -970,4 +981,59 @@ html.on-moon .corner { color: var(--ink); }
   .hud { letter-spacing: 0.12em; }
   .hud::before,
   .hud::after { display: none; }
+}
+
+/* ---- phone menu ----
+   On small screens the corner links would sit on top of the scene, so they fold away behind a
+   three-bar button and open as a small card. Only transform and opacity are animated. */
+@media (max-width: 720px) {
+  .corner { top: 0.6rem; right: 0.7rem; align-items: flex-end; }
+
+  .menu-toggle {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    padding: 0;
+    color: inherit;
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+  .menu-bars { display: grid; gap: 0.36rem; width: 1.75rem; }
+  .menu-bars span {
+    height: 0.26rem;
+    background: currentColor;
+    border-radius: 999px;
+    transition: transform 0.25s cubic-bezier(0.3, 0.9, 0.3, 1.1), opacity 0.2s;
+  }
+  /* Open: the bars turn into a cross. */
+  .corner.is-open .menu-bars span:nth-child(1) { transform: translateY(0.62rem) rotate(45deg); }
+  .corner.is-open .menu-bars span:nth-child(2) { opacity: 0; }
+  .corner.is-open .menu-bars span:nth-child(3) { transform: translateY(-0.62rem) rotate(-45deg); }
+
+  .corner-links {
+    gap: 0.35rem;
+    min-width: 13.5rem;
+    padding: 1rem 1.3rem 1.1rem 1.1rem;
+    color: var(--ink);
+    background: var(--cream);
+    border: 4px solid var(--outline);
+    border-radius: 22px 26px 20px 24px;
+    box-shadow: 6px 6px 0 var(--outline);
+    transform-origin: 100% 0;
+    transform: scale(0.85);
+    opacity: 0;
+    visibility: hidden;
+    transition: transform 0.22s cubic-bezier(0.3, 0.9, 0.3, 1.1), opacity 0.18s, visibility 0s 0.22s;
+  }
+  .corner.is-open .corner-links {
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+  .corner-links .cube-link { padding: 0.55rem 0.25rem; font-size: 1.1875rem; }
+  .corner-links #view-timeline { font-size: 1.5rem; }
+  .corner-links #sound-toggle::before { border-color: var(--outline); }
 }

@@ -14,10 +14,16 @@
     <div class="grain" aria-hidden="true"></div>
 
     <div class="corner">
-      <button id="view-timeline" class="cube-link" type="button">Timeline</button>
-      <button id="skip-to-work" class="cube-link" type="button">Skip to the work</button>
-      <button id="view-list" class="cube-link" type="button">View as list</button>
-      <button id="sound-toggle" class="cube-link" type="button" aria-pressed="true">Sound on</button>
+      <!-- Phones only: the three-bar button that opens the links below as a menu. -->
+      <button id="menu-toggle" class="menu-toggle" type="button" aria-expanded="false" aria-controls="corner-links" aria-label="Menu">
+        <span class="menu-bars" aria-hidden="true"><span></span><span></span><span></span></span>
+      </button>
+      <div id="corner-links" class="corner-links">
+        <button id="view-timeline" class="cube-link" type="button">Timeline</button>
+        <button id="skip-to-work" class="cube-link" type="button">Skip to the work</button>
+        <button id="view-list" class="cube-link" type="button">View as list</button>
+        <button id="sound-toggle" class="cube-link" type="button" aria-pressed="true">Sound on</button>
+      </div>
     </div>
 
     <main>

@@ -76,13 +76,17 @@ export function createProjectView({ burst, onOpen, onClosed, onCovered, onReques
   // fit, so a laptop shows its desktop version (full header, side-by-side layout) and not the
   // phone one. Phones are left alone: there the phone version is the right one.
   const DESKTOP_WIDTH = 1280;
+  const SMALLEST_SHRINK = 0.75;
   const screenEl = view.querySelector('.demo-screen');
   function fitFrame() {
     const frame = screenEl.querySelector('iframe');
     if (!frame) return;
     const width = screenEl.clientWidth;
     const height = screenEl.clientHeight;
-    const shrink = window.innerWidth > 720 && width > 0 ? Math.min(1, width / DESKTOP_WIDTH) : 1;
+    // Shrinking a lot would make the text too small to read, so narrow screens (phones, a
+    // tablet held upright) show the page at its natural size and get its own narrow layout.
+    const wanted = width > 0 ? Math.min(1, width / DESKTOP_WIDTH) : 1;
+    const shrink = wanted >= SMALLEST_SHRINK ? wanted : 1;
     frame.style.width = `${width / shrink}px`;
     frame.style.height = `${height / shrink}px`;
     frame.style.transform = shrink < 1 ? `scale(${shrink})` : '';
